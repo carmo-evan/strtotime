@@ -134,7 +134,6 @@ func (r *result) toDate() time.Time {
 		break
 	case -1:
 		*r.d = 0
-		*r.m++
 		break
 	}
 
@@ -204,7 +203,7 @@ func (r *result) toDate() time.Time {
 		m := lookupNumberToMonth(*r.m)
 		firstOfMonth := time.Date(*r.y, m, 1, 0, 0, 0, 0, time.UTC)
 		lastOfMonth := firstOfMonth.AddDate(0, 1, -1)
-		*r.m = lookupMonth(lastOfMonth.String())
+		_, _, *r.d = lastOfMonth.Date()
 		break
 	}
 

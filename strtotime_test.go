@@ -204,7 +204,7 @@ var resultToDateTests = []struct {
 		i: pointer(30),
 		d: pointer(27),
 		s: pointer(0),
-	}, 1569587400},
+	}, 1569573000},
 	{"March 1st 2020, 8:30am", result{
 		y: pointer(2020),
 		h: pointer(8),
@@ -212,7 +212,7 @@ var resultToDateTests = []struct {
 		i: pointer(30),
 		d: pointer(1),
 		s: pointer(0),
-	}, 1583069400},
+	}, 1583051400},
 }
 
 func TestResultToDate(t *testing.T) {

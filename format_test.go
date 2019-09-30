@@ -44,7 +44,14 @@ var formatTests = []struct {
 		m: pointer(8),
 		i: pointer(30),
 		s: pointer(0),
-	}, "first day of", 1569600000},
+	}, "first", 1567326600},
+	{"last day", formatsMap["firstOrLastDay"], &result{
+		y: pointer(2019),
+		h: pointer(8),
+		m: pointer(1),
+		i: pointer(30),
+		s: pointer(0),
+	}, "last", 1551342600},
 }
 
 func TestFormats(t *testing.T) {
