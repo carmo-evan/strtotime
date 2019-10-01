@@ -37,7 +37,7 @@ var formatTests = []struct {
 		i: pointer(30),
 		d: pointer(27),
 		s: pointer(0),
-	}, "1569600000", 1569600000},
+	}, "@1569600000", 1569600000},
 	{"first day", formatsMap["firstOrLastDay"], &result{
 		y: pointer(2019),
 		h: pointer(8),

@@ -70,9 +70,9 @@ func (r *result) time(h, i, s, f int) bool {
 }
 
 func (r *result) resetTime() bool {
-	*r.h = 0
-	*r.i = 0
-	*r.s = 0
+	r.h = pointer(0)
+	r.i = pointer(0)
+	r.s = pointer(0)
 	r.times = 0
 
 	return true

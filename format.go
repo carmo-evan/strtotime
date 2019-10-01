@@ -58,7 +58,7 @@ func pointer(x int) *int {
 func formats() map[string]format {
 
 	yesterday := format{
-		regex: `^yesterday`,
+		regex: `(yesterday)`,
 		name:  "yesterday",
 		callback: func(r *result, inputs ...string) error {
 			r.rd--
@@ -69,13 +69,15 @@ func formats() map[string]format {
 	}
 
 	now := format{
-		regex: `^now`,
+		regex: `(now)`,
 		name:  "now",
-		// do nothing
+		callback: func(r *result, inputs ...string) error {
+			return nil
+		},
 	}
 
 	noon := format{
-		regex: `^noon`,
+		regex: `(noon)`,
 		name:  "noon",
 		callback: func(r *result, inputs ...string) error {
 			r.resetTime()
@@ -94,11 +96,11 @@ func formats() map[string]format {
 	}
 
 	tomorrow := format{
-		regex: "^tomorrow",
+		regex: "(tomorrow)",
 		name:  "tomorrow",
 		callback: func(r *result, inputs ...string) error {
 			r.rd++
-			r.resetTime()
+			// r.resetTime()
 			return nil
 		},
 	}
@@ -131,32 +133,6 @@ func formats() map[string]format {
 			return nil
 		},
 	}
-
-	// var backOrFrontOfBuilder strings.Builder
-	// backOrFrontOf.WriteString(`^(back|front) of `)
-	// backOrFrontOf.WriteString(reHour24)
-	// backOrFrontOf.WriteString(reSpaceOpt)
-	// backOrFrontOf.WriteString(reMeridian)
-	// backOrFrontOf.WriteString("?")
-
-	// backOrFrontOf:= format{
-	// 	regex: backOrFrontOf.String(),
-	// 	name: "backof | frontof",
-	// 	callback: func(r *result, inputs ...string) error {
-	// 	  back = side.toLowerCase() == "back"
-	// 	  hour = +hours
-	// 		minute = 15
-
-	// 	  if (!back) {
-	// 		hour -= 1
-	// 		minute = 45
-	// 	  }
-
-	// 	  hour = processMeridian(hour, meridian)
-
-	// 	  return this.resetTime() && this.time(hour, minute, 0, 0)
-	// 	}
-	//   }
 
 	formats := map[string]format{
 		"yesterday":       yesterday,

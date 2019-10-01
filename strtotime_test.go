@@ -3,16 +3,33 @@ package strtotime
 import (
 	"fmt"
 	"testing"
+	"time"
 )
 
-// func TestParse(t *testing.T){
-// 	time,err := Parse("next week Wednesday")
-// 	if(err != nil){
-// 		t.Error(err)
-// 	}
-// 	fmt.Println(time)
+var parseTests = []struct {
+	in  string
+	out int64
+}{
+	{"yesterday noon", time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day()-1, 12, 0, 0, 0, time.UTC).Unix()},
+	{"now", time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), time.Now().Hour(), time.Now().Minute(), time.Now().Second(), time.Now().Nanosecond(), time.UTC).Unix()},
+	{"midnight", time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 0, 0, 0, 0, time.UTC).Unix()},
+	{"tomorrow", time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day()+1, time.Now().Hour(), time.Now().Minute(), time.Now().Second(), time.Now().Nanosecond(), time.UTC).Unix()},
+	{"@1569600000", 1569600000},
+}
 
-// }
+func TestParse(t *testing.T) {
+	for _, tt := range parseTests {
+		t.Run(tt.in, func(t *testing.T) {
+			r, err := Parse(tt.in)
+			if err != nil {
+				t.Error(err)
+			}
+			if r.Unix() != tt.out {
+				t.Errorf("Result should have been %v, but it was %v", tt.out, r.Unix())
+			}
+		})
+	}
+}
 
 func TestProcessMeridian(t *testing.T) {
 	h := processMeridian(12, "a")

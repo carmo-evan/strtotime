@@ -1,6 +1,7 @@
 package strtotime
 
 import (
+	"errors"
 	"math"
 	"regexp"
 	"strconv"
@@ -9,8 +10,38 @@ import (
 )
 
 func Parse(s string) (time.Time, error) {
-	//TODO: Implemenet
-	return time.Time{}, nil
+	r := &result{}
+	formats := formats()
+	noMatch := true
+	for {
+		for _, format := range formats {
+
+			re := regexp.MustCompile(format.regex)
+			match := re.FindStringSubmatch(s)
+
+			if len(match) > 0 {
+
+				noMatch = false
+
+				err := format.callback(r, match[1:]...)
+
+				if err != nil {
+					return time.Time{}, err
+				}
+
+				s = re.ReplaceAllString(s, "")
+				break
+			}
+		}
+
+		if len(strings.TrimSpace(s)) == 0 {
+			return r.toDate(), nil
+		}
+
+		if noMatch {
+			return time.Time{}, errors.New("strtotime: String had no recognizable words")
+		}
+	}
 }
 
 //processMeridian converts 12 hour format type to 24 hour format
