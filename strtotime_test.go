@@ -15,6 +15,7 @@ var parseTests = []struct {
 	{"midnight", time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 0, 0, 0, 0, time.UTC).Unix()},
 	{"tomorrow", time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day()+1, time.Now().Hour(), time.Now().Minute(), time.Now().Second(), time.Now().Nanosecond(), time.UTC).Unix()},
 	{"@1569600000", 1569600000},
+	{"last day of October", time.Date(time.Now().Year(), time.October, 31, 0, 0, 0, 0, time.UTC).Unix()},
 }
 
 func TestParse(t *testing.T) {

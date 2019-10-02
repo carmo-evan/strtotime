@@ -91,9 +91,9 @@ func (r *result) toDate() time.Time {
 
 	relativeTo := time.Now()
 	if r.dates > 0 && r.times <= 0 {
-		*r.h = 0
-		*r.i = 0
-		*r.s = 0
+		r.h = pointer(0)
+		r.i = pointer(0)
+		r.s = pointer(0)
 	}
 
 	// fill holes

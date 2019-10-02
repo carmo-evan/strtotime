@@ -1,6 +1,7 @@
 package strtotime
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -134,14 +135,29 @@ func formats() map[string]format {
 		},
 	}
 
+	monthFullOrMonthAbbr := format{
+		regex: "(?i)^(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|may|jun|jul|aug|sept?|oct|nov|dec)",
+		name:  "monthfull | monthabbr",
+		callback: func(r *result, inputs ...string) error {
+			month := inputs[0]
+			if r.dates > 0 {
+				return fmt.Errorf("strtotime: The string contains two conflicting date/months")
+			}
+			r.dates++
+			r.m = pointer(lookupMonth(month))
+			return nil
+		},
+	}
+
 	formats := map[string]format{
-		"yesterday":       yesterday,
-		"now":             now,
-		"noon":            noon,
-		"midnightOrToday": midnightOrToday,
-		"tomorrow":        tomorrow,
-		"timestamp":       timestamp,
-		"firstOrLastDay":  firstOrLastDay,
+		"yesterday":            yesterday,
+		"now":                  now,
+		"noon":                 noon,
+		"midnightOrToday":      midnightOrToday,
+		"tomorrow":             tomorrow,
+		"timestamp":            timestamp,
+		"firstOrLastDay":       firstOrLastDay,
+		"monthFullOrMonthAbbr": monthFullOrMonthAbbr,
 	}
 
 	return formats

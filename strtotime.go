@@ -1,7 +1,7 @@
 package strtotime
 
 import (
-	"errors"
+	"fmt"
 	"math"
 	"regexp"
 	"strconv"
@@ -12,8 +12,8 @@ import (
 func Parse(s string) (time.Time, error) {
 	r := &result{}
 	formats := formats()
-	noMatch := true
 	for {
+		noMatch := true
 		for _, format := range formats {
 
 			re := regexp.MustCompile(format.regex)
@@ -29,17 +29,17 @@ func Parse(s string) (time.Time, error) {
 					return time.Time{}, err
 				}
 
-				s = re.ReplaceAllString(s, "")
+				s = strings.TrimSpace(re.ReplaceAllString(s, ""))
 				break
 			}
 		}
 
-		if len(strings.TrimSpace(s)) == 0 {
+		if len(s) == 0 {
 			return r.toDate(), nil
 		}
 
 		if noMatch {
-			return time.Time{}, errors.New("strtotime: String had no recognizable words")
+			return time.Time{}, fmt.Errorf(`strtotime: Unrecognizable input - "%v"`, s)
 		}
 	}
 }
