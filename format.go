@@ -149,6 +149,48 @@ func formats() map[string]format {
 		},
 	}
 
+	// weekdayOf := format{
+	// 	regex: "^(reReltextnumber|reReltexttext)(reDayfull|reDayabbr) of",
+	// 	name: "weekdayof",
+	// 	callback: func(r *result, inputs ...string) error {
+
+	// 	},
+	// 	//TODO:Implement
+	//   },
+
+	mssqltime := format{
+		regex: "^(2[0-4]|[01]?[0-9]):([0-5][0-9]):(60|[0-5][0-9])[:.]([0-9]+)(am|pm)?",
+		name:  "mssqltime",
+		callback: func(r *result, inputs ...string) error {
+
+			hour, err := strconv.Atoi(inputs[0])
+			if err != nil {
+				return err
+			}
+
+			minute, err := strconv.Atoi(inputs[1])
+			if err != nil {
+				return err
+			}
+
+			second, err := strconv.Atoi(inputs[2])
+			if err != nil {
+				return err
+			}
+
+			frac, err := strconv.Atoi(inputs[3][0:3])
+			if err != nil {
+				return err
+			}
+			if len(inputs) == 5 {
+				meridian := inputs[4]
+				hour = processMeridian(hour, meridian)
+			}
+			r.time(hour, minute, second, frac)
+			return nil
+		},
+	}
+
 	formats := map[string]format{
 		"yesterday":            yesterday,
 		"now":                  now,
@@ -158,6 +200,7 @@ func formats() map[string]format {
 		"timestamp":            timestamp,
 		"firstOrLastDay":       firstOrLastDay,
 		"monthFullOrMonthAbbr": monthFullOrMonthAbbr,
+		"mssqltime":            mssqltime,
 	}
 
 	return formats

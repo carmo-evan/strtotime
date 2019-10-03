@@ -16,6 +16,9 @@ var parseTests = []struct {
 	{"tomorrow", time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day()+1, time.Now().Hour(), time.Now().Minute(), time.Now().Second(), time.Now().Nanosecond(), time.UTC).Unix()},
 	{"@1569600000", 1569600000},
 	{"last day of October", time.Date(time.Now().Year(), time.October, 31, 0, 0, 0, 0, time.UTC).Unix()},
+	{"01:59:59.040", time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 1, 59, 59, 40000000, time.UTC).Unix()},
+	{"01:59:59.040pm", time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 13, 59, 59, 40000000, time.UTC).Unix()},
+	{"16:59:59.040", time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 16, 59, 59, 40000000, time.UTC).Unix()},
 }
 
 func TestParse(t *testing.T) {
@@ -33,12 +36,12 @@ func TestParse(t *testing.T) {
 }
 
 func TestProcessMeridian(t *testing.T) {
-	h := processMeridian(12, "a")
+	h := processMeridian(12, "am")
 	fmt.Println(h)
 	if h != 0 {
 		t.Errorf("h should've been 0, but it is %v", h)
 	}
-	h = processMeridian(10, "p")
+	h = processMeridian(10, "pm")
 	fmt.Println(h)
 	if h != 22 {
 		t.Errorf("h should've been 22, but it is %v", h)

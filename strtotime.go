@@ -48,12 +48,12 @@ func Parse(s string) (time.Time, error) {
 func processMeridian(h int, m string) int {
 	m = strings.ToLower(m)
 	switch m {
-	case "a":
+	case "am":
 		if h == 12 {
 			h -= 12
 		}
 		break
-	case "p":
+	case "pm":
 		if h != 12 {
 			h += 12
 		}

@@ -17,6 +17,7 @@ type result struct {
 	h *int
 	i *int
 	s *int
+	f *int
 
 	// relative shifts
 	ry int
@@ -62,9 +63,10 @@ func (r *result) time(h, i, s, f int) bool {
 	}
 
 	r.times++
-	*r.h = h
-	*r.i = i
-	*r.s = s
+	r.h = &h
+	r.i = &i
+	r.s = &s
+	r.f = &f
 
 	return true
 }
@@ -73,6 +75,7 @@ func (r *result) resetTime() bool {
 	r.h = pointer(0)
 	r.i = pointer(0)
 	r.s = pointer(0)
+	r.f = pointer(0)
 	r.times = 0
 
 	return true
@@ -94,6 +97,7 @@ func (r *result) toDate() time.Time {
 		r.h = pointer(0)
 		r.i = pointer(0)
 		r.s = pointer(0)
+		r.f = pointer(0)
 	}
 
 	// fill holes
@@ -125,6 +129,11 @@ func (r *result) toDate() time.Time {
 	if r.s == nil {
 		s := relativeTo.Second()
 		r.s = &s
+	}
+
+	if r.f == nil {
+		f := relativeTo.Nanosecond() / 1000000
+		r.f = &f
 	}
 
 	// adjust special early
@@ -181,6 +190,7 @@ func (r *result) toDate() time.Time {
 	*r.h += r.rh
 	*r.i += r.ri
 	*r.s += r.rs
+	*r.f += r.rf
 
 	r.ry = 0
 	r.rm = 0
@@ -212,5 +222,5 @@ func (r *result) toDate() time.Time {
 	// 	*r.i += *r.z
 	// }
 
-	return time.Date(*r.y, lookupNumberToMonth(*r.m), *r.d, *r.h, *r.i, *r.s, 0, time.UTC)
+	return time.Date(*r.y, lookupNumberToMonth(*r.m), *r.d, *r.h, *r.i, *r.s, *r.f, time.UTC)
 }
