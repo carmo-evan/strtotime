@@ -6,6 +6,64 @@ Golang implementation of `strtotime`, a very popular PHP function for converting
 
 Still very much a work in progress.
 
-## Author
+## Supported Formats
+
+[x] yesterday
+[x] now
+[x] noon
+[x] midnightOrToday
+[x] tomorrow
+[x] timestamp
+[x] firstOrLastDay
+[ ] backOrFrontOf
+[ ] weekdayOf
+[x] mssqltime
+[ ] timeLong12
+[ ] timeShort12
+[ ] timeTiny12
+[ ] soap
+[ ] wddx
+[ ] exif
+[ ] xmlRpc
+[ ] xmlRpcNoColon
+[ ] clf
+[ ] iso8601long
+[ ] dateTextual
+[ ] pointedDate4
+[ ] pointedDate2
+[ ] timeLong24
+[ ] dateNoColon
+[ ] pgydotd
+[ ] timeShort24
+[ ] iso8601noColon
+[ ] iso8601dateSlash
+[ ] dateSlash
+[ ] american
+[ ] americanShort
+[ ] gnuDateShortOrIso8601date2
+[ ] iso8601date4
+[ ] gnuNoColon
+[ ] gnuDateShorter
+[ ] pgTextReverse
+[ ] dateFull
+[ ] dateNoDay
+[ ] dateNoDayRev
+[ ] pgTextShort
+[ ] dateNoYear
+[ ] dateNoYearRev
+[ ] isoWeekDay
+[ ] relativeText
+[ ] relative
+[ ] dayText
+[ ] relativeTextWeek
+[x] monthFullOrMonthAbbr
+[ ] tzCorrection
+[ ] ago
+[ ] gnuNoColon2
+[ ] year4
+[ ] whitespace
+[ ] any
+
+### Author
 
 By [Evan do Carmo](https://github.com/carmo-evan)

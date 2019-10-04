@@ -6,19 +6,21 @@ import (
 	"time"
 )
 
+var now = time.Now()
+
 var parseTests = []struct {
 	in  string
 	out int64
 }{
-	{"yesterday noon", time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day()-1, 12, 0, 0, 0, time.UTC).Unix()},
-	{"now", time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), time.Now().Hour(), time.Now().Minute(), time.Now().Second(), time.Now().Nanosecond(), time.UTC).Unix()},
-	{"midnight", time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 0, 0, 0, 0, time.UTC).Unix()},
-	{"tomorrow", time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day()+1, time.Now().Hour(), time.Now().Minute(), time.Now().Second(), time.Now().Nanosecond(), time.UTC).Unix()},
+	{"yesterday noon", time.Date(now.Year(), now.Month(), now.Day()-1, 12, 0, 0, 0, time.UTC).Unix()},
+	{"now", time.Date(now.Year(), now.Month(), now.Day(), now.Hour(), now.Minute(), now.Second(), now.Nanosecond(), time.UTC).Unix()},
+	{"midnight", time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC).Unix()},
+	{"tomorrow", time.Date(now.Year(), now.Month(), now.Day()+1, now.Hour(), now.Minute(), now.Second(), now.Nanosecond(), time.UTC).Unix()},
 	{"@1569600000", 1569600000},
-	{"last day of October", time.Date(time.Now().Year(), time.October, 31, 0, 0, 0, 0, time.UTC).Unix()},
-	{"01:59:59.040", time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 1, 59, 59, 40000000, time.UTC).Unix()},
-	{"01:59:59.040pm", time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 13, 59, 59, 40000000, time.UTC).Unix()},
-	{"16:59:59.040", time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 16, 59, 59, 40000000, time.UTC).Unix()},
+	{"last day of October", time.Date(now.Year(), time.October, 31, 0, 0, 0, 0, time.UTC).Unix()},
+	{"01:59:59.040", time.Date(now.Year(), now.Month(), now.Day(), 1, 59, 59, 40000000, time.UTC).Unix()},
+	{"01:59:59.040pm", time.Date(now.Year(), now.Month(), now.Day(), 13, 59, 59, 40000000, time.UTC).Unix()},
+	{"16:59:59.040", time.Date(now.Year(), now.Month(), now.Day(), 16, 59, 59, 40000000, time.UTC).Unix()},
 }
 
 func TestParse(t *testing.T) {
