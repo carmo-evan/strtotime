@@ -1,6 +1,7 @@
 package strtotime
 
 import (
+	"fmt"
 	"math"
 	"time"
 )
@@ -45,21 +46,21 @@ type result struct {
 	zones int
 }
 
-func (r *result) ymd(y, m, d int) bool {
+func (r *result) ymd(y, m, d int) error {
 	if r.dates > 0 {
-		return false
+		return fmt.Errorf("strtotime: The string contains two conflicting date/months")
 	}
 
 	r.dates++
 	*r.y = y
 	*r.m = m
 	*r.d = d
-	return true
+	return nil
 }
 
-func (r *result) time(h, i, s, f int) bool {
+func (r *result) time(h, i, s, f int) error {
 	if r.times > 0 {
-		return false
+		return fmt.Errorf("strtotime: The string contains two conflicting hours")
 	}
 
 	r.times++
@@ -68,17 +69,17 @@ func (r *result) time(h, i, s, f int) bool {
 	r.s = &s
 	r.f = &f
 
-	return true
+	return nil
 }
 
-func (r *result) resetTime() bool {
+func (r *result) resetTime() error {
 	r.h = pointer(0)
 	r.i = pointer(0)
 	r.s = pointer(0)
 	r.f = pointer(0)
 	r.times = 0
 
-	return true
+	return nil
 }
 
 // func (r *result) zone(minutes int) bool {
