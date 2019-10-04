@@ -18,9 +18,9 @@ Still very much a work in progress.
 - [ ] backOrFrontOf
 - [ ] weekdayOf
 - [x] mssqltime
-- [ ] timeLong12
-- [ ] timeShort12
-- [ ] timeTiny12
+- [x] timeLong12
+- [x] timeShort12
+- [x] timeTiny12
 - [ ] soap
 - [ ] wddx
 - [ ] exif
