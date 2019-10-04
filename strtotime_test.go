@@ -9,28 +9,40 @@ import (
 var now = time.Now()
 
 var parseTests = []struct {
-	in  string
-	out int64
+	in      string
+	out     int64
+	success bool
 }{
-	{"yesterday noon", time.Date(now.Year(), now.Month(), now.Day()-1, 12, 0, 0, 0, time.UTC).Unix()},
-	{"now", time.Date(now.Year(), now.Month(), now.Day(), now.Hour(), now.Minute(), now.Second(), now.Nanosecond(), time.UTC).Unix()},
-	{"midnight", time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC).Unix()},
-	{"tomorrow", time.Date(now.Year(), now.Month(), now.Day()+1, now.Hour(), now.Minute(), now.Second(), now.Nanosecond(), time.UTC).Unix()},
-	{"@1569600000", 1569600000},
-	{"last day of October", time.Date(now.Year(), time.October, 31, 0, 0, 0, 0, time.UTC).Unix()},
-	{"01:59:59.040", time.Date(now.Year(), now.Month(), now.Day(), 1, 59, 59, 40000000, time.UTC).Unix()},
-	{"01:59:59.040pm", time.Date(now.Year(), now.Month(), now.Day(), 13, 59, 59, 40000000, time.UTC).Unix()},
-	{"16:59:59.040", time.Date(now.Year(), now.Month(), now.Day(), 16, 59, 59, 40000000, time.UTC).Unix()},
+	{"yesterday noon", time.Date(now.Year(), now.Month(), now.Day()-1, 12, 0, 0, 0, time.UTC).Unix(), true},
+	{"now", time.Date(now.Year(), now.Month(), now.Day(), now.Hour(), now.Minute(), now.Second(), now.Nanosecond(), time.UTC).Unix(), true},
+	{"midnight", time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC).Unix(), true},
+	{"tomorrow", time.Date(now.Year(), now.Month(), now.Day()+1, now.Hour(), now.Minute(), now.Second(), now.Nanosecond(), time.UTC).Unix(), true},
+	{"@1569600000", 1569600000, true},
+	{"last day of October", time.Date(now.Year(), time.October, 31, 0, 0, 0, 0, time.UTC).Unix(), true},
+	{"01:59:59.040", time.Date(now.Year(), now.Month(), now.Day(), 1, 59, 59, 40000000, time.UTC).Unix(), true},
+	{"01:59:59.040pm", time.Date(now.Year(), now.Month(), now.Day(), 13, 59, 59, 40000000, time.UTC).Unix(), true},
+	{"16:59:59.040", time.Date(now.Year(), now.Month(), now.Day(), 16, 59, 59, 40000000, time.UTC).Unix(), true},
+	{"01:59:59 pm", time.Date(now.Year(), now.Month(), now.Day(), 13, 59, 59, 0, time.UTC).Unix(), true},
+	{"01:59:59am", time.Date(now.Year(), now.Month(), now.Day(), 1, 59, 59, 0, time.UTC).Unix(), true},
+	{"01.59.59pm", time.Date(now.Year(), now.Month(), now.Day(), 13, 59, 59, 0, time.UTC).Unix(), true},
+	{"01:59 pm", time.Date(now.Year(), now.Month(), now.Day(), 13, 59, 0, 0, time.UTC).Unix(), true},
+	{"01:59pm", time.Date(now.Year(), now.Month(), now.Day(), 13, 59, 0, 0, time.UTC).Unix(), true},
+	{"01.59pm", time.Date(now.Year(), now.Month(), now.Day(), 13, 59, 0, 0, time.UTC).Unix(), true},
+	{"01 pm", time.Date(now.Year(), now.Month(), now.Day(), 13, 0, 0, 0, time.UTC).Unix(), true},
+	{"01am", time.Date(now.Year(), now.Month(), now.Day(), 1, 0, 0, 0, time.UTC).Unix(), true},
+	{"tomorrow 01am", time.Date(now.Year(), now.Month(), now.Day()+1, 1, 0, 0, 0, time.UTC).Unix(), true},
+	{"last day of October 1am", time.Date(now.Year(), time.October, 31, 1, 0, 0, 0, time.UTC).Unix(), true},
+	{"1am 2pm", 0, false},
 }
 
 func TestParse(t *testing.T) {
 	for _, tt := range parseTests {
 		t.Run(tt.in, func(t *testing.T) {
 			r, err := Parse(tt.in)
-			if err != nil {
-				t.Error(err)
+			if err != nil && tt.success {
+				t.Fatal(err)
 			}
-			if r.Unix() != tt.out {
+			if r.Unix() != tt.out && tt.success {
 				t.Errorf("Result should have been %v, but it was %v", tt.out, r.Unix())
 			}
 		})

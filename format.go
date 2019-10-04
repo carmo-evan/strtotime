@@ -82,8 +82,7 @@ func formats() map[string]format {
 		name:  "noon",
 		callback: func(r *result, inputs ...string) error {
 			r.resetTime()
-			r.time(12, 0, 0, 0)
-			return nil
+			return r.time(12, 0, 0, 0)
 		},
 	}
 
@@ -91,8 +90,7 @@ func formats() map[string]format {
 		regex: `(midnight|today)`,
 		name:  "midnight | today",
 		callback: func(r *result, inputs ...string) error {
-			r.resetTime()
-			return nil
+			return r.resetTime()
 		},
 	}
 
@@ -101,7 +99,7 @@ func formats() map[string]format {
 		name:  "tomorrow",
 		callback: func(r *result, inputs ...string) error {
 			r.rd++
-			// r.resetTime()
+			// Original code calls r.resetTime() here.
 			return nil
 		},
 	}
@@ -111,14 +109,19 @@ func formats() map[string]format {
 		name:  "timestamp",
 		callback: func(r *result, inputs ...string) error {
 			s, err := strconv.Atoi(inputs[0])
+
+			if err != nil {
+				return err
+			}
+
 			r.rs += s
 			r.y = pointer(1970)
 			r.m = pointer(0)
 			r.d = pointer(1)
 			r.dates = 0
-			r.resetTime()
-			// r.zone(0)
-			return err
+
+			return r.resetTime()
+			// original code called r.zone(0)
 		},
 	}
 
@@ -182,12 +185,76 @@ func formats() map[string]format {
 			if err != nil {
 				return err
 			}
+
 			if len(inputs) == 5 {
 				meridian := inputs[4]
 				hour = processMeridian(hour, meridian)
 			}
-			r.time(hour, minute, second, frac)
-			return nil
+
+			return r.time(hour, minute, second, frac)
+		},
+	}
+
+	timeLong12 := format{
+		regex: "^(0?[1-9]|1[0-2])[:.]([0-5]?[0-9])[:.](60|[0-5][0-9])[ ]*(am|pm)",
+		name:  "timeLong12",
+		callback: func(r *result, inputs ...string) error {
+
+			hour, err := strconv.Atoi(inputs[0])
+			if err != nil {
+				return err
+			}
+
+			minute, err := strconv.Atoi(inputs[1])
+			if err != nil {
+				return err
+			}
+
+			second, err := strconv.Atoi(inputs[2])
+			if err != nil {
+				return err
+			}
+
+			meridian := inputs[3]
+
+			return r.time(processMeridian(hour, meridian), minute, second, 0)
+		},
+	}
+
+	timeShort12 := format{
+		regex: "^(0?[1-9]|1[0-2])[:.]([0-5][0-9])[ ]*(am|pm)",
+		name:  "timeShort12",
+		callback: func(r *result, inputs ...string) error {
+
+			hour, err := strconv.Atoi(inputs[0])
+			if err != nil {
+				return err
+			}
+
+			minute, err := strconv.Atoi(inputs[1])
+			if err != nil {
+				return err
+			}
+
+			meridian := inputs[2]
+
+			return r.time(processMeridian(hour, meridian), minute, 0, 0)
+		},
+	}
+
+	timeTiny12 := format{
+		regex: "^(0?[1-9]|1[0-2])[ ]*(am|pm)",
+		name:  "timeTiny12",
+		callback: func(r *result, inputs ...string) error {
+
+			hour, err := strconv.Atoi(inputs[0])
+			if err != nil {
+				return err
+			}
+
+			meridian := inputs[1]
+
+			return r.time(processMeridian(hour, meridian), 0, 0, 0)
 		},
 	}
 
@@ -201,6 +268,9 @@ func formats() map[string]format {
 		"firstOrLastDay":       firstOrLastDay,
 		"monthFullOrMonthAbbr": monthFullOrMonthAbbr,
 		"mssqltime":            mssqltime,
+		"timeLong12":           timeLong12,
+		"timeShort12":          timeShort12,
+		"timeTiny12":           timeTiny12,
 	}
 
 	return formats
