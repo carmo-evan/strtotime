@@ -9,6 +9,7 @@ import (
 	"time"
 )
 
+// Parse method of Strtotime is used to convert string or named time to UNIX epoch time
 func Parse(s string) (time.Time, error) {
 	r := &result{}
 	formats := formats()

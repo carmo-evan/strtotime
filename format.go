@@ -259,7 +259,7 @@ func formats() map[string]format {
 	}
 
 	american := format{
-		regex: "^" + reMonth + "/" + reDay + "/" + reYear,
+		regex: "^(1[0-2]|0?[0-9])/(0[0-9]|[1-2][0-9]|3[01])/([0-9]{2})",
 		name:  "american",
 		callback: func(r *result, inputs ...string) error {
 			month, err := strconv.Atoi(inputs[0])
