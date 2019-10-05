@@ -11,14 +11,14 @@ import (
 // initialized or not
 type result struct {
 	// date
-	y *int
-	m *int
-	d *int
+	y *int // year
+	m *int // month
+	d *int // day
 	// time
-	h *int
-	i *int
-	s *int
-	f *int
+	h *int // hours
+	i *int // minutes
+	s *int // seconds
+	f *int // miliseconds/fraction
 
 	// relative shifts
 	ry int
