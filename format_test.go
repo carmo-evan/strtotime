@@ -30,14 +30,14 @@ var formatTests = []struct {
 		d: pointer(27),
 		s: pointer(0),
 	}, "", 1569585600},
-	{"timestamp", formatsMap["timestamp"], &result{
-		y: pointer(2019),
-		h: pointer(8),
-		m: pointer(8),
-		i: pointer(30),
-		d: pointer(27),
-		s: pointer(0),
-	}, "@1569600000", 1569600000},
+	// {"timestamp", formatsMap["timestamp"], &result{
+	// 	y: pointer(2019),
+	// 	h: pointer(8),
+	// 	m: pointer(8),
+	// 	i: pointer(30),
+	// 	d: pointer(27),
+	// 	s: pointer(0),
+	// }, "@1569600000", 1569600000},
 	{"first day", formatsMap["firstOrLastDay"], &result{
 		y: pointer(2019),
 		h: pointer(8),
@@ -52,6 +52,14 @@ var formatTests = []struct {
 		i: pointer(30),
 		s: pointer(0),
 	}, "last", 1551342600},
+	{"american", formatsMap["american"], &result{
+		d: pointer(27),
+		m: pointer(8),
+		y: pointer(2019),
+		h: pointer(0),
+		i: pointer(0),
+		s: pointer(0),
+	}, "9/27/19", 1569542400},
 }
 
 func TestFormats(t *testing.T) {

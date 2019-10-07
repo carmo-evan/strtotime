@@ -258,6 +258,29 @@ func formats() map[string]format {
 		},
 	}
 
+	american := format{
+		regex: "^(1[0-2]|0?[0-9])/(0[0-9]|[1-2][0-9]|3[01])/([0-9]{2})",
+		name:  "american",
+		callback: func(r *result, inputs ...string) error {
+			month, err := strconv.Atoi(inputs[0])
+			if err != nil {
+				return err
+			}
+
+			day, err := strconv.Atoi(inputs[1])
+			if err != nil {
+				return err
+			}
+
+			year, err := processYear(inputs[2])
+			if err != nil {
+				return err
+			}
+
+			return r.ymd(year, month-1, day)
+		},
+	}
+
 	formats := map[string]format{
 		"yesterday":            yesterday,
 		"now":                  now,
@@ -271,6 +294,7 @@ func formats() map[string]format {
 		"timeLong12":           timeLong12,
 		"timeShort12":          timeShort12,
 		"timeTiny12":           timeTiny12,
+		"american":             american,
 	}
 
 	return formats

@@ -33,6 +33,7 @@ var parseTests = []struct {
 	{"tomorrow 01am", time.Date(now.Year(), now.Month(), now.Day()+1, 1, 0, 0, 0, time.UTC).Unix(), true},
 	{"last day of October 1am", time.Date(now.Year(), time.October, 31, 1, 0, 0, 0, time.UTC).Unix(), true},
 	{"1am 2pm", 0, false},
+	{"09/27/19", time.Date(2019, time.September, 27, 0, 0, 0, 0, time.UTC).Unix(), true},
 }
 
 func TestParse(t *testing.T) {
