@@ -52,9 +52,9 @@ func (r *result) ymd(y, m, d int) error {
 	}
 
 	r.dates++
-	*r.y = y
-	*r.m = m
-	*r.d = d
+	r.y = pointer(y)
+	r.m = pointer(m)
+	r.d = pointer(d)
 	return nil
 }
 
