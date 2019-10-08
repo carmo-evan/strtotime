@@ -259,7 +259,7 @@ func formats() map[string]format {
 	}
 
 	soap := format{
-		regex: `^([0-9]{4})-(0[0-9]|1[0-2])-(0[0-9]|[1-2][0-9]|3[01])T([01][0-9]|2[0-4]):([0-5][0-9]):(60|[0-5][0-9])(?:\.([0-9]+))((?:GMT)?([+-])(2[0-4]|[01]?[0-9]):?([0-5]?[0-9])?)?`,
+		regex: `^([0-9]{4})-(0[0-9]|1[0-2])-(0[0-9]|[1-2][0-9]|3[01])T([01][0-9]|2[0-4]):([0-5][0-9]):(60|[0-5][0-9])(?:\.([0-9]+))(z|Z)?((?:GMT)?([+-])(2[0-4]|[01]?[0-9]):?([0-5]?[0-9])?)?`,
 		name:  "soap",
 		callback: func(r *result, inputs ...string) error {
 
@@ -290,12 +290,17 @@ func formats() map[string]format {
 				return err
 			}
 
-			frac, err := strconv.Atoi(inputs[6][0:3])
+			mili := inputs[6]
+			if len(mili) > 3 {
+				mili = mili[0:3]
+			}
+
+			frac, err := strconv.Atoi(mili)
 			if err != nil {
 				return err
 			}
 
-			tzCorrection := inputs[7]
+			tzCorrection := inputs[8]
 
 			err = r.ymd(year, month-1, day)
 			if err != nil {
@@ -305,7 +310,9 @@ func formats() map[string]format {
 			if err != nil {
 				return err
 			}
-			r.zone(processTzCorrection(tzCorrection, 0))
+			if len(tzCorrection) > 0 {
+				r.zone(processTzCorrection(tzCorrection, 0))
+			}
 			return nil
 		},
 	}
@@ -323,6 +330,7 @@ func formats() map[string]format {
 		"timeLong12":           timeLong12,
 		"timeShort12":          timeShort12,
 		"timeTiny12":           timeTiny12,
+		"soap":                 soap,
 	}
 
 	return formats
