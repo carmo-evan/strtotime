@@ -21,7 +21,7 @@ Still very much a work in progress.
 - [x] timeLong12
 - [x] timeShort12
 - [x] timeTiny12
-- [ ] soap
+- [x] soap
 - [ ] wddx
 - [ ] exif
 - [ ] xmlRpc

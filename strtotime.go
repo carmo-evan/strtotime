@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func Parse(s string) (time.Time, error) {
+func Parse(s string) (int64, error) {
 	r := &result{}
 	formats := formats()
 	for {
@@ -26,7 +26,7 @@ func Parse(s string) (time.Time, error) {
 				err := format.callback(r, match[1:]...)
 
 				if err != nil {
-					return time.Time{}, err
+					return 0, err
 				}
 
 				s = strings.TrimSpace(re.ReplaceAllString(s, ""))
@@ -35,11 +35,11 @@ func Parse(s string) (time.Time, error) {
 		}
 
 		if len(s) == 0 {
-			return r.toDate(), nil
+			return r.toDate().Unix(), nil
 		}
 
 		if noMatch {
-			return time.Time{}, fmt.Errorf(`strtotime: Unrecognizable input - "%v"`, s)
+			return 0, fmt.Errorf(`strtotime: Unrecognizable input - "%v"`, s)
 		}
 	}
 }

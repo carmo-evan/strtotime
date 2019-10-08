@@ -258,6 +258,65 @@ func formats() map[string]format {
 		},
 	}
 
+	soap := format{
+		regex: `^([0-9]{4})-(0[0-9]|1[0-2])-(0[0-9]|[1-2][0-9]|3[01])T([01][0-9]|2[0-4]):([0-5][0-9]):(60|[0-5][0-9])(?:\.([0-9]+))(z|Z)?((?:GMT)?([+-])(2[0-4]|[01]?[0-9]):?([0-5]?[0-9])?)?`,
+		name:  "soap",
+		callback: func(r *result, inputs ...string) error {
+
+			year, err := strconv.Atoi(inputs[0])
+			if err != nil {
+				return err
+			}
+			month, err := strconv.Atoi(inputs[1])
+			if err != nil {
+				return err
+			}
+			day, err := strconv.Atoi(inputs[2])
+			if err != nil {
+				return err
+			}
+			hour, err := strconv.Atoi(inputs[3])
+			if err != nil {
+				return err
+			}
+
+			minute, err := strconv.Atoi(inputs[4])
+			if err != nil {
+				return err
+			}
+
+			second, err := strconv.Atoi(inputs[5])
+			if err != nil {
+				return err
+			}
+
+			mili := inputs[6]
+			if len(mili) > 3 {
+				mili = mili[0:3]
+			}
+
+			frac, err := strconv.Atoi(mili)
+			if err != nil {
+				return err
+			}
+
+			tzCorrection := inputs[8]
+
+			err = r.ymd(year, month-1, day)
+			if err != nil {
+				return err
+			}
+			err = r.time(hour, minute, second, frac)
+			if err != nil {
+				return err
+			}
+			if len(tzCorrection) > 0 {
+				r.zone(processTzCorrection(tzCorrection, 0))
+			}
+			return nil
+		},
+	}
+
 	formats := map[string]format{
 		"yesterday":            yesterday,
 		"now":                  now,
@@ -271,6 +330,7 @@ func formats() map[string]format {
 		"timeLong12":           timeLong12,
 		"timeShort12":          timeShort12,
 		"timeTiny12":           timeTiny12,
+		"soap":                 soap,
 	}
 
 	return formats

@@ -38,7 +38,7 @@ type result struct {
 	firstOrLastDayOfMonth int
 
 	// timezone correction in minutes
-	// z *int
+	z *int
 
 	// counters
 	dates int
@@ -52,9 +52,9 @@ func (r *result) ymd(y, m, d int) error {
 	}
 
 	r.dates++
-	*r.y = y
-	*r.m = m
-	*r.d = d
+	r.y = pointer(y)
+	r.m = pointer(m)
+	r.d = pointer(d)
 	return nil
 }
 
@@ -82,14 +82,15 @@ func (r *result) resetTime() error {
 	return nil
 }
 
-// func (r *result) zone(minutes int) bool {
-// 	if r.zones <= 1 {
-// 		r.zones++
-// 		*r.z = minutes
-// 		return true
-// 	}
-// 	return false
-// }
+func (r *result) zone(minutes int) error {
+	if r.zones > 0 {
+		return fmt.Errorf("strtotime: The string contains two conflicting time zones")
+
+	}
+	r.zones++
+	r.z = pointer(minutes)
+	return nil
+}
 
 func (r *result) toDate() time.Time {
 
@@ -219,9 +220,9 @@ func (r *result) toDate() time.Time {
 	}
 
 	// TODO: process and adjust timezone
-	// if r.z != nil {
-	// 	*r.i += *r.z
-	// }
+	if r.z != nil {
+		*r.i += *r.z
+	}
 
 	return time.Date(*r.y, lookupNumberToMonth(*r.m), *r.d, *r.h, *r.i, *r.s, *r.f, time.UTC)
 }

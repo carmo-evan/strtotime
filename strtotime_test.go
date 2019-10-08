@@ -33,6 +33,10 @@ var parseTests = []struct {
 	{"tomorrow 01am", time.Date(now.Year(), now.Month(), now.Day()+1, 1, 0, 0, 0, time.UTC).Unix(), true},
 	{"last day of October 1am", time.Date(now.Year(), time.October, 31, 1, 0, 0, 0, time.UTC).Unix(), true},
 	{"1am 2pm", 0, false},
+	{"2008-10-31T15:07:38.6875000-05:00", 1225483658, true},
+	{"2008-10-31T15:07:38.0-05:00", 1225483658, true},
+	{"2008-10-31T15:07:38.034567890GMT-05:00", 1225483658, true},
+	{"2008-10-31T15:07:38.034567890Z", 1225483658, true},
 }
 
 func TestParse(t *testing.T) {
@@ -42,8 +46,8 @@ func TestParse(t *testing.T) {
 			if err != nil && tt.success {
 				t.Fatal(err)
 			}
-			if r.Unix() != tt.out && tt.success {
-				t.Errorf("Result should have been %v, but it was %v", tt.out, r.Unix())
+			if r != tt.out && tt.success {
+				t.Errorf("Result should have been %v, but it was %v", tt.out, r)
 			}
 		})
 	}
