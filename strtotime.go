@@ -12,7 +12,6 @@ import (
 func Parse(s string) (int64, error) {
 	r := &result{}
 	formats := formats()
-	var appliedFormats []string
 	for {
 		noMatch := true
 		for _, format := range formats {
@@ -25,8 +24,6 @@ func Parse(s string) (int64, error) {
 				noMatch = false
 
 				err := format.callback(r, match[1:]...)
-
-				appliedFormats = append(appliedFormats, format.name)
 
 				if err != nil {
 					return 0, err
@@ -42,7 +39,6 @@ func Parse(s string) (int64, error) {
 		}
 
 		if noMatch {
-			fmt.Println(appliedFormats)
 			return 0, fmt.Errorf(`strtotime: Unrecognizable input - "%v"`, s)
 		}
 	}
