@@ -23,7 +23,7 @@ Still very much a work in progress.
 - [x] timeTiny12
 - [x] soap
 - [x] wddx
-- [ ] exif
+- [x] exif
 - [ ] xmlRpc
 - [ ] xmlRpcNoColon
 - [ ] clf

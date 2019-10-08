@@ -7,9 +7,9 @@ import (
 )
 
 const (
-	reSpace    = "[ \\t]+"
-	reSpaceOpt = "[ \\t]*"
-	reMeridian = "(?:([ap])\\.?m\\.?([\\t ]|$))"
+	reSpace    = "[ ]+"
+	reSpaceOpt = "[ ]*"
+	reMeridian = "(am|pm)"
 	reHour24   = "(2[0-4]|[01]?[0-9])"
 	reHour24lz = "([01][0-9]|2[0-4])"
 	reHour12   = "(0?[1-9]|1[0-2])"
@@ -139,7 +139,7 @@ func formats() []format {
 	}
 
 	monthFullOrMonthAbbr := format{
-		regex: "(?i)^(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|may|jun|jul|aug|sept?|oct|nov|dec)",
+		regex: "(?i)" + "^(" + reMonthFull + "|" + reMonthAbbr + ")",
 		name:  "monthfull | monthabbr",
 		callback: func(r *result, inputs ...string) error {
 			month := inputs[0]
@@ -162,7 +162,7 @@ func formats() []format {
 	//   },
 
 	mssqltime := format{
-		regex: "^(2[0-4]|[01]?[0-9]):([0-5][0-9]):(60|[0-5][0-9])[:.]([0-9]+)(am|pm)?",
+		regex: "^" + reHour24 + ":" + reMinutelz + ":" + reSecondlz + "[:.]([0-9]+)" + reMeridian + "?",
 		name:  "mssqltime",
 		callback: func(r *result, inputs ...string) error {
 
@@ -196,7 +196,7 @@ func formats() []format {
 	}
 
 	timeLong12 := format{
-		regex: "^(0?[1-9]|1[0-2])[:.]([0-5]?[0-9])[:.](60|[0-5][0-9])[ ]*(am|pm)",
+		regex: "^" + reHour12 + "[:.]" + reMinute + "[:.]" + reSecondlz + reSpaceOpt + reMeridian,
 		name:  "timeLong12",
 		callback: func(r *result, inputs ...string) error {
 
@@ -222,7 +222,7 @@ func formats() []format {
 	}
 
 	timeShort12 := format{
-		regex: "^(0?[1-9]|1[0-2])[:.]([0-5][0-9])[ ]*(am|pm)",
+		regex: "^" + reHour12 + "[:.]" + reMinutelz + reSpaceOpt + reMeridian,
 		name:  "timeShort12",
 		callback: func(r *result, inputs ...string) error {
 
@@ -243,7 +243,7 @@ func formats() []format {
 	}
 
 	timeTiny12 := format{
-		regex: "^(0?[1-9]|1[0-2])[ ]*(am|pm)",
+		regex: "^" + reHour12 + reSpaceOpt + reMeridian,
 		name:  "timeTiny12",
 		callback: func(r *result, inputs ...string) error {
 
@@ -259,7 +259,7 @@ func formats() []format {
 	}
 
 	soap := format{
-		regex: `^([0-9]{4})-(0[0-9]|1[0-2])-(0[0-9]|[1-2][0-9]|3[01])T([01][0-9]|2[0-4]):([0-5][0-9]):(60|[0-5][0-9])(?:\.([0-9]+))(z|Z)?((?:GMT)?([+-])(2[0-4]|[01]?[0-9]):?([0-5]?[0-9])?)?`,
+		regex: "^" + reYear4 + "-" + reMonthlz + "-" + reDaylz + "T" + reHour24lz + ":" + reMinutelz + ":" + reSecondlz + reFrac + "(z|Z)?" + reTzCorrection + "?",
 		name:  "soap",
 		callback: func(r *result, inputs ...string) error {
 
@@ -360,6 +360,47 @@ func formats() []format {
 		},
 	}
 
+	exif := format{
+		regex: "(?i)" + "^" + reYear4 + ":" + reMonthlz + ":" + reDaylz + " " + reHour24lz + ":" + reMinutelz + ":" + reSecondlz,
+		name:  "exif",
+		callback: func(r *result, inputs ...string) error {
+			year, err := strconv.Atoi(inputs[0])
+			if err != nil {
+				return err
+			}
+			month, err := strconv.Atoi(inputs[1])
+			if err != nil {
+				return err
+			}
+			day, err := strconv.Atoi(inputs[2])
+			if err != nil {
+				return err
+			}
+			hour, err := strconv.Atoi(inputs[3])
+			if err != nil {
+				return err
+			}
+
+			minute, err := strconv.Atoi(inputs[4])
+			if err != nil {
+				return err
+			}
+
+			second, err := strconv.Atoi(inputs[5])
+			if err != nil {
+				return err
+			}
+
+			err = r.ymd(year, month-1, day)
+			if err != nil {
+				return err
+			}
+
+			err = r.time(hour, minute, second, 0)
+			return err
+		},
+	}
+
 	formats := []format{
 		yesterday,
 		now,
@@ -375,6 +416,7 @@ func formats() []format {
 		timeTiny12,
 		soap,
 		wddx,
+		exif,
 	}
 
 	return formats
