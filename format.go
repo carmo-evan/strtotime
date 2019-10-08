@@ -56,7 +56,7 @@ func pointer(x int) *int {
 	return &x
 }
 
-func formats() map[string]format {
+func formats() []format {
 
 	yesterday := format{
 		regex: `(yesterday)`,
@@ -291,6 +291,7 @@ func formats() map[string]format {
 			}
 
 			mili := inputs[6]
+
 			if len(mili) > 3 {
 				mili = mili[0:3]
 			}
@@ -317,20 +318,63 @@ func formats() map[string]format {
 		},
 	}
 
-	formats := map[string]format{
-		"yesterday":            yesterday,
-		"now":                  now,
-		"noon":                 noon,
-		"midnightOrToday":      midnightOrToday,
-		"tomorrow":             tomorrow,
-		"timestamp":            timestamp,
-		"firstOrLastDay":       firstOrLastDay,
-		"monthFullOrMonthAbbr": monthFullOrMonthAbbr,
-		"mssqltime":            mssqltime,
-		"timeLong12":           timeLong12,
-		"timeShort12":          timeShort12,
-		"timeTiny12":           timeTiny12,
-		"soap":                 soap,
+	wddx := format{
+		regex: "^" + reYear4 + "-" + reMonth + "-" + reDay + "T" + reHour24 + ":" + reMinute + ":" + reSecond,
+		name:  "wddx",
+		callback: func(r *result, inputs ...string) error {
+
+			year, err := strconv.Atoi(inputs[0])
+			if err != nil {
+				return err
+			}
+			month, err := strconv.Atoi(inputs[1])
+			if err != nil {
+				return err
+			}
+			day, err := strconv.Atoi(inputs[2])
+			if err != nil {
+				return err
+			}
+			hour, err := strconv.Atoi(inputs[3])
+			if err != nil {
+				return err
+			}
+
+			minute, err := strconv.Atoi(inputs[4])
+			if err != nil {
+				return err
+			}
+
+			second, err := strconv.Atoi(inputs[5])
+			if err != nil {
+				return err
+			}
+
+			err = r.ymd(year, month-1, day)
+			if err != nil {
+				return err
+			}
+
+			err = r.time(hour, minute, second, 0)
+			return err
+		},
+	}
+
+	formats := []format{
+		yesterday,
+		now,
+		noon,
+		midnightOrToday,
+		tomorrow,
+		timestamp,
+		firstOrLastDay,
+		monthFullOrMonthAbbr,
+		mssqltime,
+		timeLong12,
+		timeShort12,
+		timeTiny12,
+		soap,
+		wddx,
 	}
 
 	return formats

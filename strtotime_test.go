@@ -1,7 +1,6 @@
 package strtotime
 
 import (
-	"fmt"
 	"testing"
 	"time"
 )
@@ -34,9 +33,9 @@ var parseTests = []struct {
 	{"last day of October 1am", time.Date(now.Year(), time.October, 31, 1, 0, 0, 0, time.UTC).Unix(), true},
 	{"1am 2pm", 0, false},
 	{"2008-10-31T15:07:38.6875000-05:00", 1225483658, true},
-	{"2008-10-31T15:07:38.0-05:00", 1225483658, true},
 	{"2008-10-31T15:07:38.034567890GMT-05:00", 1225483658, true},
-	{"2008-10-31T15:07:38.034567890Z", 1225483658, true},
+	{"2008-10-31T15:07:38.034567890Z", 1225465658, true},
+	{"2008-10-31T15:07:38", 1225465658, true},
 }
 
 func TestParse(t *testing.T) {
@@ -55,12 +54,10 @@ func TestParse(t *testing.T) {
 
 func TestProcessMeridian(t *testing.T) {
 	h := processMeridian(12, "am")
-	fmt.Println(h)
 	if h != 0 {
 		t.Errorf("h should've been 0, but it is %v", h)
 	}
 	h = processMeridian(10, "pm")
-	fmt.Println(h)
 	if h != 22 {
 		t.Errorf("h should've been 22, but it is %v", h)
 	}
