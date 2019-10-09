@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func Parse(s string, relativeTo time.Time) (int64, error) {
+func Parse(s string, relativeTo int64) (int64, error) {
 	r := &result{}
 	formats := formats()
 	for {
