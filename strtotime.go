@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func Parse(s string) (int64, error) {
+func Parse(s string, relativeTo time.Time) (int64, error) {
 	r := &result{}
 	formats := formats()
 	for {
@@ -35,7 +35,7 @@ func Parse(s string) (int64, error) {
 		}
 
 		if len(s) == 0 {
-			return r.toDate().Unix(), nil
+			return r.toDate(relativeTo).Unix(), nil
 		}
 
 		if noMatch {

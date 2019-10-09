@@ -42,7 +42,7 @@ var parseTests = []struct {
 func TestParse(t *testing.T) {
 	for _, tt := range parseTests {
 		t.Run(tt.in, func(t *testing.T) {
-			r, err := Parse(tt.in)
+			r, err := Parse(tt.in,now)
 			if err != nil && tt.success {
 				t.Fatal(err)
 			}
@@ -255,7 +255,7 @@ var resultToDateTests = []struct {
 func TestResultToDate(t *testing.T) {
 	for _, tt := range resultToDateTests {
 		t.Run(tt.n, func(t *testing.T) {
-			u := tt.r.toDate().Unix()
+			u := tt.r.toDate(time.Now()).Unix()
 			if u != tt.out {
 				t.Errorf("Unix stamp should've been %v but it was %v", tt.out, u)
 			}

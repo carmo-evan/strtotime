@@ -92,9 +92,8 @@ func (r *result) zone(minutes int) error {
 	return nil
 }
 
-func (r *result) toDate() time.Time {
+func (r *result) toDate(relativeTo time.Time) time.Time {
 
-	relativeTo := time.Now()
 	if r.dates > 0 && r.times <= 0 {
 		r.h = pointer(0)
 		r.i = pointer(0)
