@@ -19,19 +19,20 @@ func Parse(s string, relativeTo int64) (int64, error) {
 			re := regexp.MustCompile(format.regex)
 			match := re.FindStringSubmatch(s)
 
-			if len(match) > 0 {
-
-				noMatch = false
-
-				err := format.callback(r, match[1:]...)
-
-				if err != nil {
-					return 0, err
-				}
-
-				s = strings.TrimSpace(re.ReplaceAllString(s, ""))
-				break
+			if len(match) <= 0 {
+				continue
 			}
+
+			noMatch = false
+
+			err := format.callback(r, match[1:]...)
+
+			if err != nil {
+				return 0, err
+			}
+
+			s = strings.TrimSpace(re.ReplaceAllString(s, ""))
+			break
 		}
 
 		if len(s) == 0 {

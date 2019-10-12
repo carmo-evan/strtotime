@@ -1,0 +1,1207 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">strtotime/format.go (75.7%)</option>
+				
+				<option value="file1">strtotime/result.go (78.8%)</option>
+				
+				<option value="file2">strtotime/strtotime.go (92.0%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package strtotime
+
+import (
+        "fmt"
+        "strconv"
+        "strings"
+)
+
+const (
+        reSpace    = "[ ]+"
+        reSpaceOpt = "[ ]*"
+        reMeridian = "(am|pm)"
+        reHour24   = "(2[0-4]|[01]?[0-9])"
+        reHour24lz = "([01][0-9]|2[0-4])"
+        reHour12   = "(0?[1-9]|1[0-2])"
+        reMinute   = "([0-5]?[0-9])"
+        reMinutelz = "([0-5][0-9])"
+        reSecond   = "(60|[0-5]?[0-9])"
+        reSecondlz = "(60|[0-5][0-9])"
+        reFrac     = "(?:\\.([0-9]+))"
+
+        reDayfull = "sunday|monday|tuesday|wednesday|thursday|friday|saturday"
+        reDayabbr = "sun|mon|tue|wed|thu|fri|sat"
+        reDaytext = reDayfull + "|" + reDayabbr + "|weekdays?"
+
+        reReltextnumber = "first|second|third|fourth|fifth|sixth|seventh|eighth?|ninth|tenth|eleventh|twelfth"
+        reReltexttext   = "next|last|previous|this"
+        reReltextunit   = "(?:second|sec|minute|min|hour|day|fortnight|forthnight|month|year)s?|weeks|" + reDaytext
+
+        reYear          = "([0-9]{1,4})"
+        reYear2         = "([0-9]{2})"
+        reYear4         = "([0-9]{4})"
+        reYear4withSign = "([+-]?[0-9]{4})"
+        reMonth         = "(1[0-2]|0?[0-9])"
+        reMonthlz       = "(0[0-9]|1[0-2])"
+        reDay           = "(?:(3[01]|[0-2]?[0-9])(?:st|nd|rd|th)?)"
+        reDaylz         = "(0[0-9]|[1-2][0-9]|3[01])"
+
+        reMonthFull  = "january|february|march|april|may|june|july|august|september|october|november|december"
+        reMonthAbbr  = "jan|feb|mar|apr|may|jun|jul|aug|sept?|oct|nov|dec"
+        reMonthroman = "i[vx]|vi{0,3}|xi{0,2}|i{1,3}"
+        reMonthText  = "(" + reMonthFull + "|" + reMonthAbbr + "|" + reMonthroman + ")"
+
+        reTzCorrection = "((?:GMT)?([+-])" + reHour24 + ":?" + reMinute + "?)"
+        reDayOfYear    = "(00[1-9]|0[1-9][0-9]|[12][0-9][0-9]|3[0-5][0-9]|36[0-6])"
+        reWeekOfYear   = "(0[1-9]|[1-4][0-9]|5[0-3])"
+)
+
+type format struct {
+        regex    string
+        name     string
+        callback func(r *result, inputs ...string) error
+}
+
+func pointer(x int) *int <span class="cov8" title="1">{
+        return &amp;x
+}</span>
+
+func formats() []format <span class="cov8" title="1">{
+
+        yesterday := format{
+                regex: `(yesterday)`,
+                name:  "yesterday",
+                callback: func(r *result, inputs ...string) error </span><span class="cov8" title="1">{
+                        r.rd--
+                        //HACK: Original code had call to r.resetTime()
+                        // Might have to do with timezone adjustment
+                        return nil
+                }</span>,
+        }
+
+        <span class="cov8" title="1">now := format{
+                regex: `(now)`,
+                name:  "now",
+                callback: func(r *result, inputs ...string) error </span><span class="cov8" title="1">{
+                        return nil
+                }</span>,
+        }
+
+        <span class="cov8" title="1">noon := format{
+                regex: `(noon)`,
+                name:  "noon",
+                callback: func(r *result, inputs ...string) error </span><span class="cov8" title="1">{
+                        r.resetTime()
+                        return r.time(12, 0, 0, 0)
+                }</span>,
+        }
+
+        <span class="cov8" title="1">midnightOrToday := format{
+                regex: `(midnight|today)`,
+                name:  "midnight | today",
+                callback: func(r *result, inputs ...string) error </span><span class="cov8" title="1">{
+                        return r.resetTime()
+                }</span>,
+        }
+
+        <span class="cov8" title="1">tomorrow := format{
+                regex: "(tomorrow)",
+                name:  "tomorrow",
+                callback: func(r *result, inputs ...string) error </span><span class="cov8" title="1">{
+                        r.rd++
+                        // Original code calls r.resetTime() here.
+                        return nil
+                }</span>,
+        }
+
+        <span class="cov8" title="1">timestamp := format{
+                regex: `^@(-?\d+)`,
+                name:  "timestamp",
+                callback: func(r *result, inputs ...string) error </span><span class="cov8" title="1">{
+                        s, err := strconv.Atoi(inputs[0])
+
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+
+                        <span class="cov8" title="1">r.rs += s
+                        r.y = pointer(1970)
+                        r.m = pointer(0)
+                        r.d = pointer(1)
+                        r.dates = 0
+
+                        return r.resetTime()</span>
+                        // original code called r.zone(0)
+                },
+        }
+
+        <span class="cov8" title="1">firstOrLastDay := format{
+                regex: `^(first|last) day of`,
+                name:  "firstdayof | lastdayof",
+                callback: func(r *result, inputs ...string) error </span><span class="cov8" title="1">{
+                        if strings.ToLower(inputs[0]) == "first" </span><span class="cov0" title="0">{
+                                r.firstOrLastDayOfMonth = 1
+                                return nil
+                        }</span>
+                        <span class="cov8" title="1">r.firstOrLastDayOfMonth = -1
+                        return nil</span>
+                },
+        }
+
+        // weekdayOf := format{
+        //         regex: "^(reReltextnumber|reReltexttext)(reDayfull|reDayabbr) of",
+        //         name: "weekdayof",
+        //         callback: func(r *result, inputs ...string) error {
+
+        //         },
+        //         //TODO:Implement
+        //   },
+
+        <span class="cov8" title="1">mssqltime := format{
+                regex: "^" + reHour24 + ":" + reMinutelz + ":" + reSecondlz + "[:.]([0-9]+)" + reMeridian + "?",
+                name:  "mssqltime",
+                callback: func(r *result, inputs ...string) error </span><span class="cov8" title="1">{
+
+                        hour, err := strconv.Atoi(inputs[0])
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+
+                        <span class="cov8" title="1">minute, err := strconv.Atoi(inputs[1])
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+
+                        <span class="cov8" title="1">second, err := strconv.Atoi(inputs[2])
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+
+                        <span class="cov8" title="1">frac, err := strconv.Atoi(inputs[3][0:3])
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+
+                        <span class="cov8" title="1">if len(inputs) == 5 </span><span class="cov8" title="1">{
+                                meridian := inputs[4]
+                                hour = processMeridian(hour, meridian)
+                        }</span>
+
+                        <span class="cov8" title="1">return r.time(hour, minute, second, frac)</span>
+                },
+        }
+
+        <span class="cov8" title="1">timeLong12 := format{
+                regex: "^" + reHour12 + "[:.]" + reMinute + "[:.]" + reSecondlz + reSpaceOpt + reMeridian,
+                name:  "timeLong12",
+                callback: func(r *result, inputs ...string) error </span><span class="cov8" title="1">{
+
+                        hour, err := strconv.Atoi(inputs[0])
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+
+                        <span class="cov8" title="1">minute, err := strconv.Atoi(inputs[1])
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+
+                        <span class="cov8" title="1">second, err := strconv.Atoi(inputs[2])
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+
+                        <span class="cov8" title="1">meridian := inputs[3]
+
+                        return r.time(processMeridian(hour, meridian), minute, second, 0)</span>
+                },
+        }
+
+        <span class="cov8" title="1">timeShort12 := format{
+                regex: "^" + reHour12 + "[:.]" + reMinutelz + reSpaceOpt + reMeridian,
+                name:  "timeShort12",
+                callback: func(r *result, inputs ...string) error </span><span class="cov8" title="1">{
+
+                        hour, err := strconv.Atoi(inputs[0])
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+
+                        <span class="cov8" title="1">minute, err := strconv.Atoi(inputs[1])
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+
+                        <span class="cov8" title="1">meridian := inputs[2]
+
+                        return r.time(processMeridian(hour, meridian), minute, 0, 0)</span>
+                },
+        }
+
+        <span class="cov8" title="1">timeTiny12 := format{
+                regex: "^" + reHour12 + reSpaceOpt + reMeridian,
+                name:  "timeTiny12",
+                callback: func(r *result, inputs ...string) error </span><span class="cov8" title="1">{
+
+                        hour, err := strconv.Atoi(inputs[0])
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+
+                        <span class="cov8" title="1">meridian := inputs[1]
+
+                        return r.time(processMeridian(hour, meridian), 0, 0, 0)</span>
+                },
+        }
+
+        <span class="cov8" title="1">soap := format{
+                regex: "^" + reYear4 + "-" + reMonthlz + "-" + reDaylz + "T" + reHour24lz + ":" + reMinutelz + ":" + reSecondlz + reFrac + "(z|Z)?" + reTzCorrection + "?",
+                name:  "soap",
+                callback: func(r *result, inputs ...string) error </span><span class="cov8" title="1">{
+
+                        year, err := strconv.Atoi(inputs[0])
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+                        <span class="cov8" title="1">month, err := strconv.Atoi(inputs[1])
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+                        <span class="cov8" title="1">day, err := strconv.Atoi(inputs[2])
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+                        <span class="cov8" title="1">hour, err := strconv.Atoi(inputs[3])
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+
+                        <span class="cov8" title="1">minute, err := strconv.Atoi(inputs[4])
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+
+                        <span class="cov8" title="1">second, err := strconv.Atoi(inputs[5])
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+
+                        <span class="cov8" title="1">mili := inputs[6]
+
+                        if len(mili) &gt; 3 </span><span class="cov8" title="1">{
+                                mili = mili[0:3]
+                        }</span>
+
+                        <span class="cov8" title="1">frac, err := strconv.Atoi(mili)
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+
+                        <span class="cov8" title="1">tzCorrection := inputs[8]
+
+                        err = r.ymd(year, month-1, day)
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+                        <span class="cov8" title="1">err = r.time(hour, minute, second, frac)
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+                        <span class="cov8" title="1">if len(tzCorrection) &gt; 0 </span><span class="cov8" title="1">{
+                                r.zone(processTzCorrection(tzCorrection, 0))
+                        }</span>
+                        <span class="cov8" title="1">return nil</span>
+                },
+        }
+
+        <span class="cov8" title="1">wddx := format{
+                regex: "^" + reYear4 + "-" + reMonth + "-" + reDay + "T" + reHour24 + ":" + reMinute + ":" + reSecond,
+                name:  "wddx",
+                callback: func(r *result, inputs ...string) error </span><span class="cov8" title="1">{
+
+                        year, err := strconv.Atoi(inputs[0])
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+                        <span class="cov8" title="1">month, err := strconv.Atoi(inputs[1])
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+                        <span class="cov8" title="1">day, err := strconv.Atoi(inputs[2])
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+                        <span class="cov8" title="1">hour, err := strconv.Atoi(inputs[3])
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+
+                        <span class="cov8" title="1">minute, err := strconv.Atoi(inputs[4])
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+
+                        <span class="cov8" title="1">second, err := strconv.Atoi(inputs[5])
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+
+                        <span class="cov8" title="1">err = r.ymd(year, month-1, day)
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+
+                        <span class="cov8" title="1">err = r.time(hour, minute, second, 0)
+                        return err</span>
+                },
+        }
+
+        <span class="cov8" title="1">exif := format{
+                regex: "(?i)" + "^" + reYear4 + ":" + reMonthlz + ":" + reDaylz + " " + reHour24lz + ":" + reMinutelz + ":" + reSecondlz,
+                name:  "exif",
+                callback: func(r *result, inputs ...string) error </span><span class="cov8" title="1">{
+                        year, err := strconv.Atoi(inputs[0])
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+                        <span class="cov8" title="1">month, err := strconv.Atoi(inputs[1])
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+                        <span class="cov8" title="1">day, err := strconv.Atoi(inputs[2])
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+                        <span class="cov8" title="1">hour, err := strconv.Atoi(inputs[3])
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+
+                        <span class="cov8" title="1">minute, err := strconv.Atoi(inputs[4])
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+
+                        <span class="cov8" title="1">second, err := strconv.Atoi(inputs[5])
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+
+                        <span class="cov8" title="1">err = r.ymd(year, month-1, day)
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+
+                        <span class="cov8" title="1">err = r.time(hour, minute, second, 0)
+                        return err</span>
+                },
+        }
+
+        <span class="cov8" title="1">xmlRpc := format{
+                regex: "^" + reYear4 + reMonthlz + reDaylz + "T" + reHour24 + ":" + reMinutelz + ":" + reSecondlz,
+                name:  "xmlrpc",
+                callback: func(r *result, inputs ...string) error </span><span class="cov8" title="1">{
+                        year, err := strconv.Atoi(inputs[0])
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+                        <span class="cov8" title="1">month, err := strconv.Atoi(inputs[1])
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+                        <span class="cov8" title="1">day, err := strconv.Atoi(inputs[2])
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+                        <span class="cov8" title="1">hour, err := strconv.Atoi(inputs[3])
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+
+                        <span class="cov8" title="1">minute, err := strconv.Atoi(inputs[4])
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+
+                        <span class="cov8" title="1">second, err := strconv.Atoi(inputs[5])
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+
+                        <span class="cov8" title="1">err = r.ymd(year, month-1, day)
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+
+                        <span class="cov8" title="1">err = r.time(+hour, +minute, +second, 0)
+                        return err</span>
+                },
+        }
+
+        <span class="cov8" title="1">xmlRpcNoColon := format{
+                regex: "^" + reYear4 + reMonthlz + reDaylz + "[Tt]" + reHour24 + reMinutelz + reSecondlz,
+                name:  "xmlrpcnocolon",
+                callback: func(r *result, inputs ...string) error </span><span class="cov8" title="1">{
+                        year, err := strconv.Atoi(inputs[0])
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+                        <span class="cov8" title="1">month, err := strconv.Atoi(inputs[1])
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+                        <span class="cov8" title="1">day, err := strconv.Atoi(inputs[2])
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+                        <span class="cov8" title="1">hour, err := strconv.Atoi(inputs[3])
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+
+                        <span class="cov8" title="1">minute, err := strconv.Atoi(inputs[4])
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+
+                        <span class="cov8" title="1">second, err := strconv.Atoi(inputs[5])
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+
+                        <span class="cov8" title="1">err = r.ymd(year, month-1, day)
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+
+                        <span class="cov8" title="1">err = r.time(hour, minute, second, 0)
+                        return err</span>
+                },
+        }
+
+        <span class="cov8" title="1">clf := format{
+                regex: "(?i)^" + reDay + "/(" + reMonthAbbr + ")/" + reYear4 + ":" + reHour24lz + ":" + reMinutelz + ":" + reSecondlz + reSpace + reTzCorrection,
+                name:  "clf",
+                callback: func(r *result, inputs ...string) error </span><span class="cov8" title="1">{
+
+                        day, err := strconv.Atoi(inputs[0])
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+
+                        <span class="cov8" title="1">month := inputs[1]
+
+                        year, err := strconv.Atoi(inputs[2])
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+
+                        <span class="cov8" title="1">hour, err := strconv.Atoi(inputs[3])
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+
+                        <span class="cov8" title="1">minute, err := strconv.Atoi(inputs[4])
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+
+                        <span class="cov8" title="1">second, err := strconv.Atoi(inputs[5])
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+
+                        <span class="cov8" title="1">tzCorrection := inputs[6]
+
+                        err = r.ymd(year, lookupMonth(month), day)
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+
+                        <span class="cov8" title="1">err = r.time(hour, minute, second, 0)
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+
+                        <span class="cov8" title="1">err = r.zone(processTzCorrection(tzCorrection, 0))
+                        return err</span>
+                },
+        }
+
+        <span class="cov8" title="1">iso8601long := format{
+                regex: "^[Tt]?" + reHour24 + "[:.]" + reMinute + "[:.]" + reSecond + reFrac,
+                name:  "iso8601long",
+                callback: func(r *result, inputs ...string) error </span><span class="cov8" title="1">{
+
+                        hour, err := strconv.Atoi(inputs[0])
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+
+                        <span class="cov8" title="1">minute, err := strconv.Atoi(inputs[1])
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+
+                        <span class="cov8" title="1">second, err := strconv.Atoi(inputs[2])
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+
+                        <span class="cov8" title="1">mili := inputs[3]
+
+                        if len(mili) &gt; 3 </span><span class="cov0" title="0">{
+                                mili = mili[0:3]
+                        }</span>
+
+                        <span class="cov8" title="1">frac, err := strconv.Atoi(mili)
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+                        <span class="cov8" title="1">return r.time(hour, minute, second, frac)</span>
+                },
+        }
+
+        <span class="cov8" title="1">dateTextual := format{
+                regex: "(?i)^" + reMonthText + "[ .\\t-]*" + reDay + "[,.stndrh\\t ]+" + reYear,
+                name:  "datetextual",
+                callback: func(r *result, inputs ...string) error </span><span class="cov8" title="1">{
+
+                        month := inputs[0]
+
+                        day, err := strconv.Atoi(inputs[1])
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+                        <span class="cov8" title="1">year := inputs[2]
+                        y, err := processYear(year)
+                        if err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+
+                        <span class="cov8" title="1">err = r.ymd(y, lookupMonth(month), day)
+                        return err</span>
+                },
+        }
+
+        <span class="cov8" title="1">monthFullOrMonthAbbr := format{
+                regex: "(?i)^(" + reMonthFull + "|" + reMonthAbbr + ")",
+                name:  "monthfull | monthabbr",
+                callback: func(r *result, inputs ...string) error </span><span class="cov8" title="1">{
+                        month := inputs[0]
+                        if r.dates &gt; 0 </span><span class="cov0" title="0">{
+                                return fmt.Errorf("strtotime: The string contains two conflicting date/months")
+                        }</span>
+                        <span class="cov8" title="1">r.dates++
+                        r.m = pointer(lookupMonth(month))
+                        return nil</span>
+                },
+        }
+
+        <span class="cov8" title="1">formats := []format{
+                yesterday,
+                now,
+                noon,
+                midnightOrToday,
+                tomorrow,
+                timestamp,
+                firstOrLastDay,
+                mssqltime,
+                timeLong12,
+                timeShort12,
+                timeTiny12,
+                soap,
+                wddx,
+                exif,
+                xmlRpc,
+                xmlRpcNoColon,
+                clf,
+                iso8601long,
+                dateTextual,
+                monthFullOrMonthAbbr,
+        }
+
+        return formats</span>
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package strtotime
+
+import (
+        "fmt"
+        "math"
+        "time"
+)
+
+//result holds all the integers tha make up the final Time object returned.
+// we use pointers for some properties because we need to verify if they'be been
+// initialized or not
+type result struct {
+        // date
+        y *int
+        m *int
+        d *int
+        // time
+        h *int
+        i *int
+        s *int
+        f *int
+
+        // relative shifts
+        ry int
+        rm int
+        rd int
+        rh int
+        ri int
+        rs int
+        rf int
+
+        // weekday related shifts
+        weekday         *int
+        weekdayBehavior int
+
+        // first or last day of month
+        // 0 none, 1 first, -1 last
+        firstOrLastDayOfMonth int
+
+        // timezone correction in minutes
+        z *int
+
+        // counters
+        dates int
+        times int
+        zones int
+}
+
+func (r *result) ymd(y, m, d int) error <span class="cov8" title="1">{
+        if r.dates &gt; 0 </span><span class="cov0" title="0">{
+                return fmt.Errorf("strtotime: The string contains two conflicting date/months")
+        }</span>
+
+        <span class="cov8" title="1">r.dates++
+        r.y = pointer(y)
+        r.m = pointer(m)
+        r.d = pointer(d)
+        return nil</span>
+}
+
+func (r *result) time(h, i, s, f int) error <span class="cov8" title="1">{
+        if r.times &gt; 0 </span><span class="cov8" title="1">{
+                return fmt.Errorf("strtotime: The string contains two conflicting hours")
+        }</span>
+
+        <span class="cov8" title="1">r.times++
+        r.h = &amp;h
+        r.i = &amp;i
+        r.s = &amp;s
+        r.f = &amp;f
+
+        return nil</span>
+}
+
+func (r *result) resetTime() error <span class="cov8" title="1">{
+        r.h = pointer(0)
+        r.i = pointer(0)
+        r.s = pointer(0)
+        r.f = pointer(0)
+        r.times = 0
+
+        return nil
+}</span>
+
+func (r *result) zone(minutes int) error <span class="cov8" title="1">{
+        if r.zones &gt; 0 </span><span class="cov0" title="0">{
+                return fmt.Errorf("strtotime: The string contains two conflicting time zones")
+
+        }</span>
+        <span class="cov8" title="1">r.zones++
+        r.z = pointer(minutes)
+        return nil</span>
+}
+
+func (r *result) toDate(re int64) time.Time <span class="cov8" title="1">{
+
+        relativeTo := time.Unix(re, 0)
+
+        if r.dates &gt; 0 &amp;&amp; r.times &lt;= 0 </span><span class="cov8" title="1">{
+                r.h = pointer(0)
+                r.i = pointer(0)
+                r.s = pointer(0)
+                r.f = pointer(0)
+        }</span>
+
+        // fill holes
+        <span class="cov8" title="1">if r.y == nil </span><span class="cov8" title="1">{
+                y := relativeTo.Year()
+                r.y = &amp;y
+        }</span>
+
+        <span class="cov8" title="1">if r.m == nil </span><span class="cov8" title="1">{
+                m := lookupMonth(relativeTo.Month().String())
+                r.m = &amp;m
+        }</span>
+
+        <span class="cov8" title="1">if r.d == nil </span><span class="cov8" title="1">{
+                d := relativeTo.Day()
+                r.d = &amp;d
+        }</span>
+
+        <span class="cov8" title="1">if r.h == nil </span><span class="cov8" title="1">{
+                h := relativeTo.Hour()
+                r.h = &amp;h
+        }</span>
+
+        <span class="cov8" title="1">if r.i == nil </span><span class="cov8" title="1">{
+                i := relativeTo.Minute()
+                r.i = &amp;i
+        }</span>
+
+        <span class="cov8" title="1">if r.s == nil </span><span class="cov8" title="1">{
+                s := relativeTo.Second()
+                r.s = &amp;s
+        }</span>
+
+        <span class="cov8" title="1">if r.f == nil </span><span class="cov8" title="1">{
+                f := relativeTo.Nanosecond() / 1000000
+                r.f = &amp;f
+        }</span>
+
+        // adjust special early
+        <span class="cov8" title="1">switch r.firstOrLastDayOfMonth </span>{
+        case 1:<span class="cov0" title="0">
+                *r.d = 1
+                break</span>
+        case -1:<span class="cov8" title="1">
+                *r.d = 0
+                break</span>
+        }
+
+        <span class="cov8" title="1">if r.weekday != nil </span><span class="cov0" title="0">{
+
+                var dow = lookupWeekday(relativeTo.Weekday().String(), 1)
+
+                if r.weekdayBehavior == 2 </span><span class="cov0" title="0">{
+                        // To make "r week" work, where the current day of week is a "sunday"
+                        if dow == 0 &amp;&amp; *r.weekday != 0 </span><span class="cov0" title="0">{
+                                *r.weekday = -6
+                        }</span>
+
+                        // To make "sunday r week" work, where the current day of week is not a "sunday"
+                        <span class="cov0" title="0">if *r.weekday == 0 &amp;&amp; dow != 0 </span><span class="cov0" title="0">{
+                                *r.weekday = 7
+                        }</span>
+
+                        <span class="cov0" title="0">*r.d -= dow
+                        *r.d += *r.weekday</span>
+                } else<span class="cov0" title="0"> {
+                        var diff = *r.weekday - dow
+
+                        // some PHP magic
+                        if (r.rd &lt; 0 &amp;&amp; diff &lt; 0) || (r.rd &gt;= 0 &amp;&amp; diff &lt;= -r.weekdayBehavior) </span><span class="cov0" title="0">{
+                                diff += 7
+                        }</span>
+
+                        <span class="cov0" title="0">if *r.weekday &gt;= 0 </span><span class="cov0" title="0">{
+                                *r.d += diff
+                        }</span> else<span class="cov0" title="0"> {
+                                //TODO: Fix this madness
+                                *r.d -= int((7 - (math.Abs(float64(*r.weekday)) - float64(dow))))
+                        }</span>
+
+                        <span class="cov0" title="0">r.weekday = nil</span>
+                }
+        }
+
+        // adjust relative
+        <span class="cov8" title="1">*r.y += r.ry
+        *r.m += r.rm
+        *r.d += r.rd
+
+        *r.h += r.rh
+        *r.i += r.ri
+        *r.s += r.rs
+        *r.f += r.rf
+
+        r.ry = 0
+        r.rm = 0
+        r.rd = 0
+        r.rh = 0
+        r.ri = 0
+        r.rs = 0
+        r.rf = 0
+
+        // note: this is done twice in PHP
+        // early when processing special relatives
+        // and late
+        // todo: check if the logic can be reduced
+        // to just one time action
+        switch r.firstOrLastDayOfMonth </span>{
+        case 1:<span class="cov0" title="0">
+                *r.d = 1
+                break</span>
+        case -1:<span class="cov8" title="1">
+                m := lookupNumberToMonth(*r.m)
+                firstOfMonth := time.Date(*r.y, m, 1, 0, 0, 0, 0, time.UTC)
+                lastOfMonth := firstOfMonth.AddDate(0, 1, -1)
+                _, _, *r.d = lastOfMonth.Date()
+                break</span>
+        }
+
+        // TODO: process and adjust timezone
+        <span class="cov8" title="1">if r.z != nil </span><span class="cov8" title="1">{
+                *r.i += *r.z
+        }</span>
+
+        <span class="cov8" title="1">return time.Date(*r.y, lookupNumberToMonth(*r.m), *r.d, *r.h, *r.i, *r.s, *r.f, time.UTC)</span>
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package strtotime
+
+import (
+        "fmt"
+        "math"
+        "regexp"
+        "strconv"
+        "strings"
+        "time"
+)
+
+func Parse(s string, relativeTo int64) (int64, error) <span class="cov8" title="1">{
+        r := &amp;result{}
+        formats := formats()
+        for </span><span class="cov8" title="1">{
+                noMatch := true
+                for _, format := range formats </span><span class="cov8" title="1">{
+
+                        re := regexp.MustCompile(format.regex)
+                        match := re.FindStringSubmatch(s)
+
+                        if len(match) &gt; 0 </span><span class="cov8" title="1">{
+
+                                noMatch = false
+
+                                err := format.callback(r, match[1:]...)
+
+                                if err != nil </span><span class="cov8" title="1">{
+                                        return 0, err
+                                }</span>
+
+                                <span class="cov8" title="1">s = strings.TrimSpace(re.ReplaceAllString(s, ""))
+                                break</span>
+                        }
+                }
+
+                <span class="cov8" title="1">if len(s) == 0 </span><span class="cov8" title="1">{
+                        return r.toDate(relativeTo).Unix(), nil
+                }</span>
+
+                <span class="cov8" title="1">if noMatch </span><span class="cov0" title="0">{
+                        return 0, fmt.Errorf(`strtotime: Unrecognizable input: "%v"`, s)
+                }</span>
+        }
+}
+
+//processMeridian converts 12 hour format type to 24 hour format
+func processMeridian(h int, m string) int <span class="cov8" title="1">{
+        m = strings.ToLower(m)
+        switch m </span>{
+        case "am":<span class="cov8" title="1">
+                if h == 12 </span><span class="cov8" title="1">{
+                        h -= 12
+                }</span>
+                <span class="cov8" title="1">break</span>
+        case "pm":<span class="cov8" title="1">
+                if h != 12 </span><span class="cov8" title="1">{
+                        h += 12
+                }</span>
+                <span class="cov8" title="1">break</span>
+        }
+
+        <span class="cov8" title="1">return h</span>
+}
+
+//processYear converts a year string such as "75" to a year, such as 1975
+func processYear(yearStr string) (int, error) <span class="cov8" title="1">{
+        y, err := strconv.Atoi(yearStr)
+
+        cutoffYear := 70 //Magic number. Anything before this will be in the 2000s. After, 1900s.
+
+        if err != nil </span><span class="cov0" title="0">{
+                return 0, err
+        }</span>
+
+        <span class="cov8" title="1">if len(yearStr) &gt;= 4 || y &gt;= 100 </span><span class="cov8" title="1">{
+                return y, nil
+        }</span>
+
+        <span class="cov8" title="1">if y &lt; cutoffYear </span><span class="cov8" title="1">{
+                y += 2000
+                return y, nil
+        }</span>
+
+        <span class="cov8" title="1">if y &gt;= cutoffYear </span><span class="cov8" title="1">{
+                y += 1900
+                return y, nil
+        }</span>
+
+        <span class="cov0" title="0">return y, nil</span>
+}
+
+func lookupMonth(m string) int <span class="cov8" title="1">{
+        monthMap := map[string]int{
+                "jan":       0,
+                "january":   0,
+                "i":         0,
+                "feb":       1,
+                "february":  1,
+                "ii":        1,
+                "mar":       2,
+                "march":     2,
+                "iii":       2,
+                "apr":       3,
+                "april":     3,
+                "iv":        3,
+                "may":       4,
+                "v":         4,
+                "jun":       5,
+                "june":      5,
+                "vi":        5,
+                "jul":       6,
+                "july":      6,
+                "vii":       6,
+                "aug":       7,
+                "august":    7,
+                "viii":      7,
+                "sep":       8,
+                "sept":      8,
+                "september": 8,
+                "ix":        8,
+                "oct":       9,
+                "october":   9,
+                "x":         9,
+                "nov":       10,
+                "november":  10,
+                "xi":        10,
+                "dec":       11,
+                "december":  11,
+                "xii":       11,
+        }
+        return monthMap[strings.ToLower(m)]
+}</span>
+
+func lookupNumberToMonth(m int) time.Month <span class="cov8" title="1">{
+        monthMap := map[int]time.Month{
+                0:  time.January,
+                1:  time.February,
+                2:  time.March,
+                3:  time.April,
+                4:  time.May,
+                5:  time.June,
+                6:  time.July,
+                7:  time.August,
+                8:  time.September,
+                9:  time.October,
+                10: time.November,
+                11: time.December,
+        }
+        return monthMap[m]
+}</span>
+
+func lookupWeekday(day string, desiredSundayNumber int) int <span class="cov8" title="1">{
+        dayNumberMap := map[string]int{
+                "mon":       1,
+                "monday":    1,
+                "tue":       2,
+                "tuesday":   2,
+                "wed":       3,
+                "wednesday": 3,
+                "thu":       4,
+                "thursday":  4,
+                "fri":       5,
+                "friday":    5,
+                "sat":       6,
+                "saturday":  6,
+                "sun":       0,
+                "sunday":    0,
+        }
+
+        if n, ok := dayNumberMap[strings.ToLower(day)]; ok </span><span class="cov8" title="1">{
+                return n
+        }</span>
+
+        <span class="cov0" title="0">return desiredSundayNumber</span>
+}
+
+func lookupRelative(rel string) map[string]int <span class="cov8" title="1">{
+        relativeNumbersMap := map[string]int{
+                "last":     -1,
+                "previous": -1,
+                "this":     0,
+                "first":    1,
+                "next":     1,
+                "second":   2,
+                "third":    3,
+                "fourth":   4,
+                "fifth":    5,
+                "sixth":    6,
+                "seventh":  7,
+                "eight":    8,
+                "eighth":   8,
+                "ninth":    9,
+                "tenth":    10,
+                "eleventh": 11,
+                "twelfth":  12,
+        }
+
+        relativeBehaviorMap := map[string]int{
+                "this": 1,
+        }
+
+        relativeBehaviorValue := 0
+
+        if value, ok := relativeBehaviorMap[rel]; ok </span><span class="cov8" title="1">{
+                relativeBehaviorValue = value
+        }</span>
+
+        <span class="cov8" title="1">rel = strings.ToLower(rel)
+
+        return map[string]int{
+                "amount":   relativeNumbersMap[rel],
+                "behavior": relativeBehaviorValue,
+        }</span>
+}
+
+//processTzCorrection converts a time zone offset (i.e. GMT-5) to minutes (i.e. 300)
+func processTzCorrection(tzOffset string, oldValue int) int <span class="cov8" title="1">{
+        const reTzCorrectionLoose = `(?:GMT)?([+-])(\d+)(:?)(\d{0,2})`
+        re := regexp.MustCompile(reTzCorrectionLoose)
+        offsetGroups := re.FindStringSubmatch(tzOffset)
+
+        sign := -1
+
+        if strings.Contains(tzOffset, "-") </span><span class="cov8" title="1">{
+                sign = 1
+        }</span>
+
+        <span class="cov8" title="1">hours, err := strconv.Atoi(offsetGroups[2])
+
+        if err != nil </span><span class="cov0" title="0">{
+                return oldValue
+        }</span>
+
+        <span class="cov8" title="1">var minutes int
+
+        if strings.Contains(tzOffset, ":") &amp;&amp; len(offsetGroups[4]) &gt; 0 </span><span class="cov8" title="1">{
+                minutes, err = strconv.Atoi(offsetGroups[4])
+
+                if err != nil </span><span class="cov0" title="0">{
+                        return oldValue
+                }</span>
+        }
+
+        <span class="cov8" title="1">if !strings.Contains(tzOffset, ":") &amp;&amp; len(offsetGroups[2]) &gt; 2 </span><span class="cov8" title="1">{
+                m := float64(hours % 100)
+                h := float64(hours / 100)
+                minutes = int(math.Floor(m))
+                hours = int(math.Floor(h))
+        }</span>
+
+        <span class="cov8" title="1">return sign * (hours*60 + minutes)</span>
+}
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>
