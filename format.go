@@ -401,6 +401,171 @@ func formats() []format {
 		},
 	}
 
+	xmlRpc := format{
+		regex: "^" + reYear4 + reMonthlz + reDaylz + "T" + reHour24 + ":" + reMinutelz + ":" + reSecondlz,
+		name:  "xmlrpc",
+		callback: func(r *result, inputs ...string) error {
+			year, err := strconv.Atoi(inputs[0])
+			if err != nil {
+				return err
+			}
+			month, err := strconv.Atoi(inputs[1])
+			if err != nil {
+				return err
+			}
+			day, err := strconv.Atoi(inputs[2])
+			if err != nil {
+				return err
+			}
+			hour, err := strconv.Atoi(inputs[3])
+			if err != nil {
+				return err
+			}
+
+			minute, err := strconv.Atoi(inputs[4])
+			if err != nil {
+				return err
+			}
+
+			second, err := strconv.Atoi(inputs[5])
+			if err != nil {
+				return err
+			}
+
+			err = r.ymd(year, month-1, day)
+			if err != nil {
+				return err
+			}
+
+			err = r.time(+hour, +minute, +second, 0)
+			return err
+		},
+	}
+
+	xmlRpcNoColon := format{
+		regex: "^" + reYear4 + reMonthlz + reDaylz + "[Tt]" + reHour24 + reMinutelz + reSecondlz,
+		name:  "xmlrpcnocolon",
+		callback: func(r *result, inputs ...string) error {
+			year, err := strconv.Atoi(inputs[0])
+			if err != nil {
+				return err
+			}
+			month, err := strconv.Atoi(inputs[1])
+			if err != nil {
+				return err
+			}
+			day, err := strconv.Atoi(inputs[2])
+			if err != nil {
+				return err
+			}
+			hour, err := strconv.Atoi(inputs[3])
+			if err != nil {
+				return err
+			}
+
+			minute, err := strconv.Atoi(inputs[4])
+			if err != nil {
+				return err
+			}
+
+			second, err := strconv.Atoi(inputs[5])
+			if err != nil {
+				return err
+			}
+
+			err = r.ymd(year, month-1, day)
+			if err != nil {
+				return err
+			}
+
+			err = r.time(hour, minute, second, 0)
+			return err
+		},
+	}
+
+	clf := format{
+		regex: "(?i)^" + reDay + "/(" + reMonthAbbr + ")/" + reYear4 + ":" + reHour24lz + ":" + reMinutelz + ":" + reSecondlz + reSpace + reTzCorrection,
+		name:  "clf",
+		callback: func(r *result, inputs ...string) error {
+
+			day, err := strconv.Atoi(inputs[0])
+			if err != nil {
+				return err
+			}
+
+			month := inputs[1]
+
+			year, err := strconv.Atoi(inputs[2])
+			if err != nil {
+				return err
+			}
+
+			hour, err := strconv.Atoi(inputs[3])
+			if err != nil {
+				return err
+			}
+
+			minute, err := strconv.Atoi(inputs[4])
+			if err != nil {
+				return err
+			}
+
+			second, err := strconv.Atoi(inputs[5])
+			if err != nil {
+				return err
+			}
+
+			tzCorrection := inputs[6]
+
+			err = r.ymd(year, lookupMonth(month), day)
+			if err != nil {
+				return err
+			}
+
+			err = r.time(hour, minute, second, 0)
+			if err != nil {
+				return err
+			}
+
+			err = r.zone(processTzCorrection(tzCorrection, 0))
+			return err
+		},
+	}
+
+	iso8601long := format{
+		regex: "^[Tt]?" + reHour24 + "[:.]" + reMinute + "[:.]" + reSecond + reFrac,
+		name:  "iso8601long",
+		callback: func(r *result, inputs ...string) error {
+
+			hour, err := strconv.Atoi(inputs[0])
+			if err != nil {
+				return err
+			}
+
+			minute, err := strconv.Atoi(inputs[1])
+			if err != nil {
+				return err
+			}
+
+			second, err := strconv.Atoi(inputs[2])
+			if err != nil {
+				return err
+			}
+
+			mili := inputs[3]
+
+			if len(mili) > 3 {
+				mili = mili[0:3]
+			}
+
+			frac, err := strconv.Atoi(mili)
+			if err != nil {
+				return err
+			}
+			return r.time(hour, minute, second, frac)
+		},
+	}
+
 	formats := []format{
 		yesterday,
 		now,
@@ -417,6 +582,10 @@ func formats() []format {
 		soap,
 		wddx,
 		exif,
+		xmlRpc,
+		xmlRpcNoColon,
+		clf,
+		iso8601long,
 	}
 
 	return formats

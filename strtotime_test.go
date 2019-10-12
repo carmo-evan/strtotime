@@ -37,12 +37,17 @@ var parseTests = []struct {
 	{"2008-10-31T15:07:38.034567890Z", 1225465658, true},
 	{"2008-10-31T15:07:38", 1225465658, true},
 	{"2008:10:31 15:07:38", 1225465658, true},
+	{"20081031T15:07:38", 1225465658, true},
+	{"20081031T150738", 1225465658, true},
+	{"20081031t150738", 1225465658, true},
+	{"31/Oct/2008:15:07:38 -0500", 1225483658, true},
+	{"T13:59:59.040", time.Date(now.Year(), now.Month(), now.Day(), 13, 59, 59, 40000000, time.UTC).Unix(), true},
 }
 
 func TestParse(t *testing.T) {
 	for _, tt := range parseTests {
 		t.Run(tt.in, func(t *testing.T) {
-			r, err := Parse(tt.in,now.Unix())
+			r, err := Parse(tt.in, now.Unix())
 			if err != nil && tt.success {
 				t.Fatal(err)
 			}
@@ -213,9 +218,13 @@ var tzCorrectionTests = []struct {
 	{"GMT-5", 300},
 	{"GMT-5:00", 300},
 	{"GMT-5:30", 330},
+	{"-0500", 300},
+	{"-0530", 330},
 	{"GMT+5", -300},
 	{"GMT+5:00", -300},
 	{"GMT+5:30", -330},
+	{"+0500", -300},
+	{"+0530", -330},
 }
 
 func TestTzCorrection(t *testing.T) {
