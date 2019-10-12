@@ -28,9 +28,9 @@ Still very much a work in progress.
 - [x] xmlRpcNoColon
 - [x] clf
 - [x] iso8601long
-- [ ] dateTextual
-- [ ] pointedDate4
-- [ ] pointedDate2
+- [x] dateTextual
+- [x] pointedDate4
+- [x] pointedDate2
 - [ ] timeLong24
 - [ ] dateNoColon
 - [ ] pgydotd

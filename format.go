@@ -138,20 +138,6 @@ func formats() []format {
 		},
 	}
 
-	monthFullOrMonthAbbr := format{
-		regex: "(?i)" + "^(" + reMonthFull + "|" + reMonthAbbr + ")",
-		name:  "monthfull | monthabbr",
-		callback: func(r *result, inputs ...string) error {
-			month := inputs[0]
-			if r.dates > 0 {
-				return fmt.Errorf("strtotime: The string contains two conflicting date/months")
-			}
-			r.dates++
-			r.m = pointer(lookupMonth(month))
-			return nil
-		},
-	}
-
 	// weekdayOf := format{
 	// 	regex: "^(reReltextnumber|reReltexttext)(reDayfull|reDayabbr) of",
 	// 	name: "weekdayof",
@@ -566,6 +552,88 @@ func formats() []format {
 		},
 	}
 
+	dateTextual := format{
+		regex: "(?i)^" + reMonthText + "[ .\\t-]*" + reDay + "[,.stndrh\\t ]+" + reYear,
+		name:  "datetextual",
+		callback: func(r *result, inputs ...string) error {
+
+			month := inputs[0]
+
+			day, err := strconv.Atoi(inputs[1])
+			if err != nil {
+				return err
+			}
+			year := inputs[2]
+			y, err := processYear(year)
+			if err != nil {
+				return err
+			}
+
+			err = r.ymd(y, lookupMonth(month), day)
+			return err
+		},
+	}
+
+	pointedDate4 := format{
+		regex: "^" + reDay + "[.\\t-]" + reMonth + "[.-]" + reYear4,
+		name:  "pointeddate4",
+		callback: func(r *result, inputs ...string) error {
+			day, err := strconv.Atoi(inputs[0])
+			if err != nil {
+				return err
+			}
+
+			month, err := strconv.Atoi(inputs[1])
+			if err != nil {
+				return err
+			}
+
+			year, err := strconv.Atoi(inputs[2])
+			if err != nil {
+				return err
+			}
+
+			return r.ymd(year, month-1, day)
+		},
+	}
+
+	pointedDate2 := format{
+		regex: "^" + reDay + "[.\\t]" + reMonth + "\\." + reYear2,
+		name:  "pointeddate2",
+		callback: func(r *result, inputs ...string) error {
+			day, err := strconv.Atoi(inputs[0])
+			if err != nil {
+				return err
+			}
+
+			month, err := strconv.Atoi(inputs[1])
+			if err != nil {
+				return err
+			}
+
+			y, err := processYear(inputs[2])
+			if err != nil {
+				return err
+			}
+
+			return r.ymd(y, month-1, day)
+		},
+	}
+
+	monthFullOrMonthAbbr := format{
+		regex: "(?i)^(" + reMonthFull + "|" + reMonthAbbr + ")",
+		name:  "monthfull | monthabbr",
+		callback: func(r *result, inputs ...string) error {
+			month := inputs[0]
+			if r.dates > 0 {
+				return fmt.Errorf("strtotime: The string contains two conflicting date/months")
+			}
+			r.dates++
+			r.m = pointer(lookupMonth(month))
+			return nil
+		},
+	}
+
 	formats := []format{
 		yesterday,
 		now,
@@ -574,7 +642,6 @@ func formats() []format {
 		tomorrow,
 		timestamp,
 		firstOrLastDay,
-		monthFullOrMonthAbbr,
 		mssqltime,
 		timeLong12,
 		timeShort12,
@@ -586,6 +653,10 @@ func formats() []format {
 		xmlRpcNoColon,
 		clf,
 		iso8601long,
+		dateTextual,
+		pointedDate4,
+		pointedDate2,
+		monthFullOrMonthAbbr,
 	}
 
 	return formats
