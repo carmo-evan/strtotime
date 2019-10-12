@@ -24,10 +24,10 @@ Still very much a work in progress.
 - [x] soap
 - [x] wddx
 - [x] exif
-- [ ] xmlRpc
-- [ ] xmlRpcNoColon
-- [ ] clf
-- [ ] iso8601long
+- [x] xmlRpc
+- [x] xmlRpcNoColon
+- [x] clf
+- [x] iso8601long
 - [ ] dateTextual
 - [ ] pointedDate4
 - [ ] pointedDate2

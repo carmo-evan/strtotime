@@ -39,7 +39,7 @@ func Parse(s string, relativeTo int64) (int64, error) {
 		}
 
 		if noMatch {
-			return 0, fmt.Errorf(`strtotime: Unrecognizable input - "%v"`, s)
+			return 0, fmt.Errorf(`strtotime: Unrecognizable input: "%v"`, s)
 		}
 	}
 }
@@ -222,7 +222,7 @@ func processTzCorrection(tzOffset string, oldValue int) int {
 
 	sign := -1
 
-	if offsetGroups[1] == "-" {
+	if strings.Contains(tzOffset, "-") {
 		sign = 1
 	}
 
@@ -234,7 +234,7 @@ func processTzCorrection(tzOffset string, oldValue int) int {
 
 	var minutes int
 
-	if len(offsetGroups) > 3 && len(offsetGroups[4]) > 0 {
+	if strings.Contains(tzOffset, ":") && len(offsetGroups[4]) > 0 {
 		minutes, err = strconv.Atoi(offsetGroups[4])
 
 		if err != nil {
@@ -242,7 +242,7 @@ func processTzCorrection(tzOffset string, oldValue int) int {
 		}
 	}
 
-	if len(offsetGroups) < 3 {
+	if !strings.Contains(tzOffset, ":") && len(offsetGroups[2]) > 2 {
 		m := float64(hours % 100)
 		h := float64(hours / 100)
 		minutes = int(math.Floor(m))
