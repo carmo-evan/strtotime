@@ -34,7 +34,7 @@ Still very much a work in progress.
 - [x] timeLong24
 - [x] dateNoColon
 - [x] pgydotd
-- [ rt24
+- [ ] timeShort24
 - [ ] iso8601noColon
 - [ ] iso8601dateSlash
 - [ ] dateSlash
