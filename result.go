@@ -169,7 +169,7 @@ func (r *result) toDate(re int64) time.Time {
 		} else {
 			var diff = *r.weekday - dow
 
-			// some PHP magic
+			//TODO: Fix this madness
 			if (r.rd < 0 && diff < 0) || (r.rd >= 0 && diff <= -r.weekdayBehavior) {
 				diff += 7
 			}

@@ -31,9 +31,9 @@ Still very much a work in progress.
 - [x] dateTextual
 - [x] pointedDate4
 - [x] pointedDate2
-- [ ] timeLong24
-- [ ] dateNoColon
-- [ ] pgydotd
+- [x] timeLong24
+- [x] dateNoColon
+- [x] pgydotd
 - [ ] timeShort24
 - [ ] iso8601noColon
 - [ ] iso8601dateSlash
