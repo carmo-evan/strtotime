@@ -620,6 +620,73 @@ func formats() []format {
 		},
 	}
 
+	timeLong24 := format{
+		regex: "^t?" + reHour24 + "[:.]" + reMinute + "[:.]" + reSecond,
+		name:  "timelong24",
+		callback: func(r *result, inputs ...string) error {
+
+			hour, err := strconv.Atoi(inputs[0])
+			if err != nil {
+				return err
+			}
+
+			minute, err := strconv.Atoi(inputs[1])
+			if err != nil {
+				return err
+			}
+
+			second, err := strconv.Atoi(inputs[2])
+			if err != nil {
+				return err
+			}
+
+			err = r.time(hour, minute, second, 0)
+			return err
+		},
+	}
+
+	dateNoColon := format{
+		regex: "^" + reYear4 + reMonthlz + reDaylz,
+		name:  "datenocolon",
+		callback: func(r *result, inputs ...string) error {
+
+			year, err := strconv.Atoi(inputs[0])
+			if err != nil {
+				return err
+			}
+
+			month, err := strconv.Atoi(inputs[1])
+			if err != nil {
+				return err
+			}
+
+			day, err := strconv.Atoi(inputs[2])
+			if err != nil {
+				return err
+			}
+
+			err = r.ymd(year, month-1, day)
+			return err
+		},
+	}
+
+	pgydotd := format{ //also known as julian date format
+		regex: "^" + reYear4 + `\.?` + reDayOfYear,
+		name:  "pgydotd",
+		callback: func(r *result, inputs ...string) error {
+			year, err := strconv.Atoi(inputs[0])
+			if err != nil {
+				return err
+			}
+
+			day, err := strconv.Atoi(inputs[1])
+			if err != nil {
+				return err
+			}
+			return r.ymd(year, 0, day)
+		},
+	}
+
 	monthFullOrMonthAbbr := format{
 		regex: "(?i)^(" + reMonthFull + "|" + reMonthAbbr + ")",
 		name:  "monthfull | monthabbr",
@@ -656,7 +723,10 @@ func formats() []format {
 		dateTextual,
 		pointedDate4,
 		pointedDate2,
+		timeLong24,
 		monthFullOrMonthAbbr,
+		dateNoColon,
+		pgydotd,
 	}
 
 	return formats

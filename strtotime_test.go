@@ -45,6 +45,9 @@ var parseTests = []struct {
 	{"July 5th, 2015", 1436054400, true},
 	{"5.07.2015", 1436054400, true},
 	{"5.07.15", 1436054400, true},
+	{"13:59:59", time.Date(now.Year(), now.Month(), now.Day(), 13, 59, 59, 0, time.UTC).Unix(), true},
+	{"20150705", 1436054400, true},
+	{"2015186", 1436054400, true},
 }
 
 func TestParse(t *testing.T) {
