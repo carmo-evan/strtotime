@@ -1,3 +1,5 @@
+[![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
+
 # strtotime
 
 ![Image of PHP mascot being switch by Golang mascot](https://i.imgur.com/8RhHjkD.jpg)
@@ -34,35 +36,33 @@ Still very much a work in progress.
 - [x] timeLong24
 - [x] dateNoColon
 - [x] pgydotd
-- [ ] timeShort24
-- [ ] iso8601noColon
-- [ ] iso8601dateSlash
-- [ ] dateSlash
-- [ ] american
-- [ ] americanShort
-- [ ] gnuDateShortOrIso8601date2
-- [ ] iso8601date4
-- [ ] gnuNoColon
-- [ ] gnuDateShorter
-- [ ] pgTextReverse
-- [ ] dateFull
-- [ ] dateNoDay
-- [ ] dateNoDayRev
-- [ ] pgTextShort
-- [ ] dateNoYear
-- [ ] dateNoYearRev
-- [ ] isoWeekDay
-- [ ] relativeText
-- [ ] relative
-- [ ] dayText
-- [ ] relativeTextWeek
+- [x] timeShort24
+- [x] iso8601noColon
+- [x] dateSlash
+- [x] american
+- [x] americanShort
+- [x] gnuDateShortOrIso8601date2
+- [x] iso8601date4
+- [x] gnuNoColon
+- [x] gnuDateShorter
+- [x] pgTextReverse
+- [x] dateFull
+- [x] dateNoDay
+- [x] dateNoDayRev
+- [x] pgTextShort
+- [x] dateNoYear
+- [x] dateNoYearRev
+- [x] isoWeekDay
+- [x] relativeText
+- [x] relative
+- [x] dayText
+- [x] relativeTextWeek
 - [x] monthFullOrMonthAbbr
-- [ ] tzCorrection
-- [ ] ago
-- [ ] gnuNoColon2
-- [ ] year4
-- [ ] whitespace
-- [ ] any
+- [x] tzCorrection
+- [x] ago
+- [x] gnuNoColon2
+- [x] year4
+- [x] whitespace
 
 ### Author
 

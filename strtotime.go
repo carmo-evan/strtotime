@@ -15,7 +15,9 @@ func Parse(s string, relativeTo int64) (int64, error) {
 	for {
 		noMatch := true
 		for _, format := range formats {
-
+			if format.name == "weekdayof" {
+				fmt.Println(format.regex)
+			}
 			re := regexp.MustCompile(format.regex)
 			match := re.FindStringSubmatch(s)
 
@@ -176,7 +178,7 @@ func lookupWeekday(day string, desiredSundayNumber int) int {
 	return desiredSundayNumber
 }
 
-func lookupRelative(rel string) map[string]int {
+func lookupRelative(rel string) (amount int, behavior int) {
 	relativeNumbersMap := map[string]int{
 		"last":     -1,
 		"previous": -1,
@@ -209,10 +211,7 @@ func lookupRelative(rel string) map[string]int {
 
 	rel = strings.ToLower(rel)
 
-	return map[string]int{
-		"amount":   relativeNumbersMap[rel],
-		"behavior": relativeBehaviorValue,
-	}
+	return relativeNumbersMap[rel], relativeBehaviorValue
 }
 
 //processTzCorrection converts a time zone offset (i.e. GMT-5) to minutes (i.e. 300)

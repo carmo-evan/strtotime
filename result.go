@@ -94,7 +94,7 @@ func (r *result) zone(minutes int) error {
 
 func (r *result) toDate(re int64) time.Time {
 
-	relativeTo := time.Unix(re, 0)
+	relativeTo := time.Unix(re, 0).UTC()
 
 	if r.dates > 0 && r.times <= 0 {
 		r.h = pointer(0)

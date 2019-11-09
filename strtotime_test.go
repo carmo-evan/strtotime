@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-var now = time.Now()
+var now = time.Date(2015, 7, 5, 13, 0, 0, 0, time.UTC)
 
 var parseTests = []struct {
 	in      string
@@ -13,7 +13,7 @@ var parseTests = []struct {
 	success bool
 }{
 	{"yesterday noon", time.Date(now.Year(), now.Month(), now.Day()-1, 12, 0, 0, 0, time.UTC).Unix(), true},
-	{"now", time.Date(now.Year(), now.Month(), now.Day(), now.Hour(), now.Minute(), now.Second(), now.Nanosecond(), time.UTC).Unix(), true},
+	{"now", now.Unix(), true},
 	{"midnight", time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC).Unix(), true},
 	{"tomorrow", time.Date(now.Year(), now.Month(), now.Day()+1, now.Hour(), now.Minute(), now.Second(), now.Nanosecond(), time.UTC).Unix(), true},
 	{"@1569600000", 1569600000, true},
@@ -30,7 +30,6 @@ var parseTests = []struct {
 	{"01 pm", time.Date(now.Year(), now.Month(), now.Day(), 13, 0, 0, 0, time.UTC).Unix(), true},
 	{"01am", time.Date(now.Year(), now.Month(), now.Day(), 1, 0, 0, 0, time.UTC).Unix(), true},
 	{"tomorrow 01am", time.Date(now.Year(), now.Month(), now.Day()+1, 1, 0, 0, 0, time.UTC).Unix(), true},
-	{"last day of October 1am", time.Date(now.Year(), time.October, 31, 1, 0, 0, 0, time.UTC).Unix(), true},
 	{"1am 2pm", 0, false},
 	{"2008-10-31T15:07:38.6875000-05:00", 1225483658, true},
 	{"2008-10-31T15:07:38.034567890GMT-05:00", 1225483658, true},
@@ -48,6 +47,50 @@ var parseTests = []struct {
 	{"13:59:59", time.Date(now.Year(), now.Month(), now.Day(), 13, 59, 59, 0, time.UTC).Unix(), true},
 	{"20150705", 1436054400, true},
 	{"2015186", 1436054400, true},
+	{"13:59", time.Date(now.Year(), now.Month(), now.Day(), 13, 59, 0, 0, time.UTC).Unix(), true},
+	{"135959", time.Date(now.Year(), now.Month(), now.Day(), 13, 59, 59, 0, time.UTC).Unix(), true},
+	{"2015/07/05", 1436054400, true},
+	{"2015/07/05/", 1436054400, true},
+	{"2015/7/5", 1436054400, true},
+	{"2015/7/5", 1436054400, true},
+	{"7/5/2015", 1436054400, true},
+	{"7/5", time.Date(now.Year(), time.July, 5, 0, 0, 0, 0, time.UTC).Unix(), true},
+	{"93-3-19", 732499200, true},
+	{"1993-03-19", 732499200, true},
+	{"t1359", time.Date(now.Year(), now.Month(), now.Day(), 13, 59, 0, 0, time.UTC).Unix(), true},
+	{"2019-01", 1546300800, true},
+	{"2015-jul-05", 1436054400, true},
+	{"05-jul-2015", 1436054400, true},
+	{"05-july-2015", 1436054400, true},
+	{"jan-2019", 1546300800, true},
+	{"2019-jan", 1546300800, true},
+	{"jul-05-2015", 1436054400, true},
+	{"January 1st", time.Date(now.Year(), time.January, 1, 0, 0, 0, 0, time.UTC).Unix(), true},
+	{"1st January", time.Date(now.Year(), time.January, 1, 0, 0, 0, 0, time.UTC).Unix(), true},
+	{"2019-W01-1", 1546214400, true},
+	{"2019-W02-7", 1547337600, true},
+	{"2018-W02-7", 1515888000, true},
+	{"2016-W02-7", 1452988800, true},
+	{"2015-W02-7", 1420934400, true},
+	{"2014-W02-7", 1389484800, true},
+	{"next year", time.Date(now.Year()+1, now.Month(), now.Day(), now.Hour(), now.Minute(), now.Second(), now.Nanosecond(), time.UTC).Unix(), true},
+	{"next day", time.Date(now.Year(), now.Month(), now.Day()+1, now.Hour(), now.Minute(), now.Second(), now.Nanosecond(), time.UTC).Unix(), true},
+	{"next hour", time.Date(now.Year(), now.Month(), now.Day(), now.Hour()+1, now.Minute(), now.Second(), now.Nanosecond(), time.UTC).Unix(), true},
+	{"next minute", time.Date(now.Year(), now.Month(), now.Day(), now.Hour(), now.Minute()+1, now.Second(), now.Nanosecond(), time.UTC).Unix(), true},
+	{"next second", time.Date(now.Year(), now.Month(), now.Day(), now.Hour(), now.Minute(), now.Second()+1, now.Nanosecond(), time.UTC).Unix(), true},
+	{"next week", 1436187600, true},
+	{"last week", 1434978000, true},
+	{"last month", time.Date(now.Year(), now.Month()-1, now.Day(), now.Hour(), now.Minute(), now.Second(), now.Nanosecond(), time.UTC).Unix(), true},
+	{"next month", time.Date(now.Year(), now.Month()+1, now.Day(), now.Hour(), now.Minute(), now.Second(), now.Nanosecond(), time.UTC).Unix(), true},
+	{"previous month", time.Date(now.Year(), now.Month()-1, now.Day(), now.Hour(), now.Minute(), now.Second(), now.Nanosecond(), time.UTC).Unix(), true},
+	{"monday this week GMT-05:00", 1435554000, true},
+	{"3 days ago", 1435842000, true},
+	{"-1 day +1 month", 1438693200, true},
+	{"-1 day 0 month", 1436014800, true},
+	{"1359", time.Date(now.Year(), now.Month(), now.Day(), 13, 59, 0, 0, time.UTC).Unix(), true},
+	{"1993", 741877200, true},
+	{" ", 1436101200, true},
+	// {"first monday of december", 1436101200, true},
 }
 
 func TestParse(t *testing.T) {
@@ -209,9 +252,9 @@ var relativeTests = []struct {
 func TestLookupRelative(t *testing.T) {
 	for _, tt := range relativeTests {
 		t.Run(tt.in, func(t *testing.T) {
-			d := lookupRelative(tt.in)
-			if d["amount"] != tt.out["amount"] || d["behavior"] != tt.out["behavior"] {
-				t.Errorf("Output should've been %v, but it was %v.", tt.out, d)
+			amount, behavior := lookupRelative(tt.in)
+			if amount != tt.out["amount"] || behavior != tt.out["behavior"] {
+				t.Errorf("Output should've been %v, but it was %v.", tt.out, amount)
 			}
 		})
 	}
