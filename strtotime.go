@@ -15,9 +15,7 @@ func Parse(s string, relativeTo int64) (int64, error) {
 	for {
 		noMatch := true
 		for _, format := range formats {
-			if format.name == "weekdayof" {
-				fmt.Println(format.regex)
-			}
+			
 			re := regexp.MustCompile(format.regex)
 			match := re.FindStringSubmatch(s)
 
