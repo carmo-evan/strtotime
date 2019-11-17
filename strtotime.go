@@ -1,3 +1,5 @@
+// Package strtotime provides a Go implementation of the popular PHP function. It translates
+// English text to unix timestamps.
 package strtotime
 
 import (
@@ -9,13 +11,15 @@ import (
 	"time"
 )
 
+// Parse takes an English string - such as "next Friday 3 pm" - and an int64 unix timestamp to compare it with.
+// It returns the translated English text into an int64 unix timestamp, or an error if the input cannot be recognized.
 func Parse(s string, relativeTo int64) (int64, error) {
 	r := &result{}
 	formats := formats()
 	for {
 		noMatch := true
 		for _, format := range formats {
-			
+
 			re := regexp.MustCompile(format.regex)
 			match := re.FindStringSubmatch(s)
 

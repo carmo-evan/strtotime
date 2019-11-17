@@ -1,4 +1,4 @@
-[![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
+[![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 
 # strtotime
 
@@ -6,7 +6,39 @@
 
 Golang implementation of `strtotime`, a very popular PHP function for converting English text to a timestamp. This is an exercise inspired on [this](https://github.com/kvz/locutus/blob/master/src/php/datetime/strtotime.js) Javascript implementation.
 
-Still very much a work in progress.
+## Installation
+
+`strtotime` uses Go modules and is compatible with Go 1.12 upwards. Install using `go get`.
+
+```
+go get gitub.com/carmo-evan/strtotime
+```
+
+After importing it, the `strtotime` package will expose only one method: `Parse`. It takes two arguments - an English string describing some point in time; and a unix timestamp that should represent the current time, or another referencial point in time you want to use.
+
+```go
+package main
+
+import (
+	"fmt"
+	"github.com/carmo-evan/strtotime"
+	"time"
+)
+
+func main() {
+    //Now is Nov 17, 2019
+    u, err := strtotime.Parse("next Friday 3pm", time.Now().Unix())
+    
+    if err != nil {
+        // crash and burn
+    }
+
+    t := time.Unix(u,0)
+    
+    fmt.Println(t)
+    //output: 2019-11-22 15:00:00 +0000 UTC
+}
+```
 
 ## Supported Formats
 
