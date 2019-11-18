@@ -40,6 +40,8 @@ func main() {
 }
 ```
 
+Executable example: https://codeeval.dev/gist/ec81d16977f29daeb6c619ae8b61475d
+
 ## Supported Formats
 
 - [x] yesterday
