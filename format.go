@@ -28,6 +28,7 @@ const (
 	reReltextnumber = "first|second|third|fourth|fifth|sixth|seventh|eighth?|ninth|tenth|eleventh|twelfth"
 	reReltexttext   = "next|last|previous|this"
 	reReltextunit   = "(?:second|sec|minute|min|hour|day|fortnight|forthnight|month|year)s?|weeks|" + reDaytext
+	reRelmvttext    = "(back|front)"
 
 	reYear          = "([0-9]{1,4})"
 	reYear2         = "([0-9]{2})"
@@ -154,7 +155,7 @@ func formats() []format {
 	// }
 
 	backOrFrontOf := format{
-		regex: "(?i)^(" + reMonthFull + ") " + reDaylz + " " + reYear + " (back|front) of " + reHour24 + reMeridian,
+		regex: "(?i)^(" + reMonthFull + ") " + reDaylz + " " + reYear + " " + reRelmvttext + " of " + reHour24 + reMeridian,
 		name:  "backof | frontof",
 		callback: func(r *result, inputs ...string) error {
 			year, err := strconv.Atoi(inputs[2])
@@ -172,12 +173,10 @@ func formats() []format {
 			r.m = pointer(lookupMonth(inputs[0]))
 			r.y = pointer(year)
 			r.d = pointer(day)
-			if inputs[3] == "back" {
-				minute := 15
-				return r.time(processMeridian(hour, inputs[5]), minute, 0, 0)
-			}
-			minute := 45
-			return r.time(processMeridian(hour-1, inputs[5]), minute, 0, 0)
+
+			minute, diffhour := lookupRelative(inputs[3])
+
+			return r.time(processMeridian(hour+diffhour, inputs[5]), minute, 0, 0)
 		},
 	}
 
