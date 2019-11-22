@@ -153,6 +153,34 @@ func formats() []format {
 	// 	//TODO:Implement
 	// }
 
+	backOrFrontOf := format{
+		regex: "(?i)^(" + reMonthFull + ") " + reDaylz + " " + reYear + " (back|front) of " + reHour24 + reMeridian,
+		name:  "backof | frontof",
+		callback: func(r *result, inputs ...string) error {
+			year, err := strconv.Atoi(inputs[2])
+			if err != nil {
+				return nil
+			}
+			day, err := strconv.Atoi(inputs[1])
+			if err != nil {
+				return nil
+			}
+			hour, err := strconv.Atoi(inputs[4])
+			if err != nil {
+				return err
+			}
+			r.m = pointer(lookupMonth(inputs[0]))
+			r.y = pointer(year)
+			r.d = pointer(day)
+			if inputs[3] == "back" {
+				minute := 15
+				return r.time(processMeridian(hour, inputs[5]), minute, 0, 0)
+			}
+			minute := 45
+			return r.time(processMeridian(hour-1, inputs[5]), minute, 0, 0)
+		},
+	}
+
 	mssqltime := format{
 		regex: "^" + reHour24 + ":" + reMinutelz + ":" + reSecondlz + "[:.]([0-9]+)" + reMeridian + "?",
 		name:  "mssqltime",
@@ -1343,6 +1371,7 @@ func formats() []format {
 		tomorrow,
 		timestamp,
 		firstOrLastDay,
+		backOrFrontOf,
 		// weekdayOf,
 		mssqltime,
 		timeLong12,
