@@ -90,6 +90,9 @@ var parseTests = []struct {
 	{"1359", time.Date(now.Year(), now.Month(), now.Day(), 13, 59, 0, 0, time.UTC).Unix(), true},
 	{"1993", 741877200, true},
 	{" ", 1436101200, true},
+	{"November 15 2019 front of 7pm", 1573843500, true},
+	{"January 00 2019 front of 24am", 1546299900, true},
+
 	// {"first monday of december", 1436101200, true},
 }
 

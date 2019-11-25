@@ -2,7 +2,7 @@
 
 # strtotime
 
-![Image of PHP mascot being switch by Golang mascot](https://i.imgur.com/8RhHjkD.jpg)
+![Image of PHP mascot being switched by Golang mascot](https://i.imgur.com/8RhHjkD.jpg)
 
 Golang implementation of `strtotime`, a very popular PHP function for converting English text to a timestamp. This is an exercise inspired on [this](https://github.com/kvz/locutus/blob/master/src/php/datetime/strtotime.js) Javascript implementation.
 
@@ -51,7 +51,7 @@ func main() {
 - [x] tomorrow
 - [x] timestamp
 - [x] firstOrLastDay
-- [ ] backOrFrontOf
+- [x] backOrFrontOf (Thank you [evalevanto!](https://github.com/evalevanto))
 - [ ] weekdayOf
 - [x] mssqltime
 - [x] timeLong12

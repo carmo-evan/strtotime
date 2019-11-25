@@ -28,6 +28,7 @@ const (
 	reReltextnumber = "first|second|third|fourth|fifth|sixth|seventh|eighth?|ninth|tenth|eleventh|twelfth"
 	reReltexttext   = "next|last|previous|this"
 	reReltextunit   = "(?:second|sec|minute|min|hour|day|fortnight|forthnight|month|year)s?|weeks|" + reDaytext
+	reRelmvttext    = "(back|front)"
 
 	reYear          = "([0-9]{1,4})"
 	reYear2         = "([0-9]{2})"
@@ -152,6 +153,32 @@ func formats() []format {
 	// 	},
 	// 	//TODO:Implement
 	// }
+
+	backOrFrontOf := format{
+		regex: "(?i)^(" + reMonthFull + ") " + reDaylz + " " + reYear + " " + reRelmvttext + " of " + reHour24 + reMeridian,
+		name:  "backof | frontof",
+		callback: func(r *result, inputs ...string) error {
+			year, err := strconv.Atoi(inputs[2])
+			if err != nil {
+				return nil
+			}
+			day, err := strconv.Atoi(inputs[1])
+			if err != nil {
+				return nil
+			}
+			hour, err := strconv.Atoi(inputs[4])
+			if err != nil {
+				return err
+			}
+			r.m = pointer(lookupMonth(inputs[0]))
+			r.y = pointer(year)
+			r.d = pointer(day)
+
+			minute, diffhour := lookupRelative(inputs[3])
+
+			return r.time(processMeridian(hour+diffhour, inputs[5]), minute, 0, 0)
+		},
+	}
 
 	mssqltime := format{
 		regex: "^" + reHour24 + ":" + reMinutelz + ":" + reSecondlz + "[:.]([0-9]+)" + reMeridian + "?",
@@ -1343,6 +1370,7 @@ func formats() []format {
 		tomorrow,
 		timestamp,
 		firstOrLastDay,
+		backOrFrontOf,
 		// weekdayOf,
 		mssqltime,
 		timeLong12,
