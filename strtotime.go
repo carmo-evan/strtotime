@@ -182,8 +182,8 @@ func lookupWeekday(day string, desiredSundayNumber int) int {
 
 func lookupRelative(rel string) (amount int, behavior int) {
 	relativeNumbersMap := map[string]int{
-		"back": 15,
-		"front": 45,
+		"back":     15,
+		"front":    45,
 		"last":     -1,
 		"previous": -1,
 		"this":     0,
@@ -204,9 +204,9 @@ func lookupRelative(rel string) (amount int, behavior int) {
 	}
 
 	relativeBehaviorMap := map[string]int{
-		"this": 1,
+		"this":  1,
 		"front": -1,
-		"back": 0,
+		"back":  0,
 	}
 
 	relativeBehaviorValue := 0
