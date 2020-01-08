@@ -11,7 +11,7 @@ Golang implementation of `strtotime`, a very popular PHP function for converting
 `strtotime` uses Go modules and is compatible with Go 1.12 upwards. Install using `go get`.
 
 ```
-go get gitub.com/carmo-evan/strtotime
+go get github.com/carmo-evan/strtotime
 ```
 
 After importing it, the `strtotime` package will expose only one method: `Parse`. It takes two arguments - an English string describing some point in time; and a unix timestamp that should represent the current time, or another referencial point in time you want to use. 
